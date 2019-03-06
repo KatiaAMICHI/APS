@@ -1,0 +1,1 @@
+prog(cmds(echo(Int(42))))
