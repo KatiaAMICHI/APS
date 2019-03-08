@@ -448,7 +448,7 @@ let yyact = [|
     let _4 = (Parsing.peek_val __caml_parser_env 0 : 'expr) in
     Obj.repr(
 # 101 "parser.mly"
-                       ( ASTafun(_2, _4))
+                       ( ASTlambda(_2, _4))
 # 453 "parser.ml"
                : 'expr))
 ; (fun __caml_parser_env ->
@@ -456,7 +456,7 @@ let yyact = [|
     let _3 = (Parsing.peek_val __caml_parser_env 1 : 'exprs) in
     Obj.repr(
 # 102 "parser.mly"
-                        ( ASTexprl(_2,_3) )
+                        ( ASTapply(_2,_3) )
 # 461 "parser.ml"
                : 'expr))
 ; (fun __caml_parser_env ->

@@ -24,23 +24,23 @@ match ts with
 let print_arg a = 
 match a with 
 	ASTarg(a,t) -> (
-		Printf.printf"arg(%s," a;
+		Printf.printf"(%s," a;
 		print_type t;
 		Printf.printf")") 
 
 let rec print_args a = 
 match a with
 	Arg a -> print_arg a
-	| ASTargs(a,ars) -> (
-		Printf.printf"args(";
+	| ASTargs(a,args) -> (
 		print_arg a;
 		Printf.printf",";
-		print_args ars;
-		Printf.printf")")		
+		print_args args)		
 
 let rec print_expr e = 
 match e with
-	 ASTintv n -> Printf.printf"int(%d)" n
+	ASTtrue -> Printf.printf"true"
+	| ASTfalse -> Printf.printf"false"
+	| ASTintv n -> Printf.printf"int(%d)" n
 	| ASTident x -> Printf.printf"ident(%s)" x
 	| ASTprim(op, e1, e2) -> (
 		Printf.printf"%s" (string_of_op op);
@@ -56,14 +56,13 @@ match e with
 		print_expr e1;
 		Printf.printf")"	
 		)
-	| ASTtrue -> Printf.printf"true"
-	| ASTfalse -> Printf.printf"false"
-	| ASTafun(a,e) -> (
-		Printf.printf"afun("; 
+	| ASTlambda(a,e) -> (
+		Printf.printf"lambda(["; 
 		print_args a;
-		Printf.printf")";
-		print_expr e)
-	| ASTexprl(e,es) -> (
+		Printf.printf"],";
+		print_expr e;
+		Printf.printf")")
+	| ASTapply(e,es) -> (
 		Printf.printf"apply(";
 		print_expr e;
 		Printf.printf",[";
@@ -80,16 +79,14 @@ match e with
 
 and print_exprs es = 
 match es with
-	Expr e -> print_expr e
+	Expr(e) -> print_expr e
 	| ASTexprs(e,es)-> (print_expr e; Printf.printf" "; print_exprs es)
 	
 
 let print_dec dec = 
 	match dec with 
 	 ASTconst(x,t,e)  -> (
-		Printf.printf"const(";	 	
-		Printf.printf"%s" x; 	 	
-	 	Printf.printf",";
+		Printf.printf"const(%s,"x;	 	
 	 	print_type t;
 	 	Printf.printf",";
 	 	print_expr e;
@@ -121,25 +118,25 @@ let print_stat stat =
 		
 let rec print_cmd cmd =
 	match cmd with
-		ASTstat stat -> (
-						Printf.printf "stat(";
-						print_stat stat;
-						Printf.printf "),epsilon")
+		 ASTstat(stat) -> (
+				Printf.printf "stat(";
+				print_stat stat;
+				Printf.printf "),epsilon")
 		| ASTdeccmd (dec,cmd) -> (
-						Printf.printf "dec(";
-						print_dec dec;
-						Printf.printf"),";
-						print_cmd cmd)
+				Printf.printf "dec(";
+				print_dec dec;
+				Printf.printf"),";
+				print_cmd cmd)
 		| ASTstatcmd (stat,cmds) ->  (
-						Printf.printf "stat(";
-						print_stat stat;
-						Printf.printf"),";
-						print_cmd cmds)
+					Printf.printf "stat(";
+					print_stat stat;
+					Printf.printf"),";
+					print_cmd cmds)
 
 		
-let print_cmds cmd =
+let print_cmds cmds =
 	Printf.printf"[";
-	print_cmd cmd;
+	print_cmd cmds;
 	Printf.printf"]"
 
 let print_prog prog =

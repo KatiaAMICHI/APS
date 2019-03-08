@@ -98,8 +98,8 @@ expr :
 	| LPAR NOT expr RPAR  { ASTunaryPrim(Ast.Not, $3 ) } 
 	| LPAR AND expr expr RPAR  { ASTprim(Ast.And, $3, $4 ) } 
 	| LPAR OR expr expr RPAR  { ASTprim(Ast.Or, $3, $4 ) } 
-	| LCRO args RCRO expr { ASTafun($2, $4)}
-	| LPAR expr exprs RPAR { ASTexprl($2,$3) }
+	| LCRO args RCRO expr { ASTlambda($2, $4)}
+	| LPAR expr exprs RPAR { ASTapply($2,$3) }
 	| LPAR IF expr expr expr RPAR { ASTif($3, $4, $5) }
 
 ;

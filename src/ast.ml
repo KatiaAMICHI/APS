@@ -46,8 +46,8 @@ type expr =
 	| ASTunaryPrim of op * expr
 	| ASTtrue 
 	| ASTfalse
-	| ASTafun of args * expr
-	| ASTexprl of expr * exprs
+	| ASTlambda of args * expr
+	| ASTapply of expr * exprs
 	| ASTif of expr * expr * expr
 
 and exprs = Expr of expr
