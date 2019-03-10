@@ -1,1 +1,0 @@
-[FUN f int [x : int, y : bool] (if y (add x 1) (add x 2));ECHO x]

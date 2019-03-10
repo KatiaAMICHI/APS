@@ -1,6 +1,6 @@
 open Ast
 
-let rec print_type t = 
+let rec print_type t =
 match t with
 	Int -> Printf.printf"int"
 	| Bool -> Printf.printf"bool"
@@ -11,7 +11,7 @@ match t with
 		print_type t;
 		Printf.printf")")
 
-and print_types ts = 
+and print_types ts =
 match ts with
 	Typ(t) -> print_type t;
 	| Couple (t, ts) -> (
@@ -20,23 +20,23 @@ match ts with
 		Printf.printf",";
 		print_types ts;
 		Printf.printf")")
-	
-let print_arg a = 
-match a with 
+
+let print_arg a =
+match a with
 	ASTarg(a,t) -> (
 		Printf.printf"(%s," a;
 		print_type t;
-		Printf.printf")") 
+		Printf.printf")")
 
-let rec print_args a = 
+let rec print_args a =
 match a with
 	Arg a -> print_arg a
 	| ASTargs(a,args) -> (
 		print_arg a;
 		Printf.printf",";
-		print_args args)		
+		print_args args)
 
-let rec print_expr e = 
+let rec print_expr e =
 match e with
 	ASTtrue -> Printf.printf"true"
 	| ASTfalse -> Printf.printf"false"
@@ -54,10 +54,10 @@ match e with
 		Printf.printf"%s" (string_of_op op);
 		Printf.printf"(";
 		print_expr e1;
-		Printf.printf")"	
+		Printf.printf")"
 		)
 	| ASTlambda(a,e) -> (
-		Printf.printf"lambda(["; 
+		Printf.printf"lambda([";
 		print_args a;
 		Printf.printf"],";
 		print_expr e;
@@ -77,16 +77,16 @@ match e with
 		print_expr e3;
 		Printf.printf")")
 
-and print_exprs es = 
+and print_exprs es =
 match es with
 	Expr(e) -> print_expr e
 	| ASTexprs(e,es)-> (print_expr e; Printf.printf" "; print_exprs es)
-	
 
-let print_dec dec = 
-	match dec with 
+
+let print_dec dec =
+	match dec with
 	 ASTconst(x,t,e)  -> (
-		Printf.printf"const(%s,"x;	 	
+		Printf.printf"const(%s,"x;
 	 	print_type t;
 	 	Printf.printf",";
 	 	print_expr e;
@@ -109,13 +109,13 @@ let print_dec dec =
 		Printf.printf")")
 
 
-let print_stat stat = 
-	match stat with 	
+let print_stat stat =
+	match stat with
 	ASTecho e -> (
 		Printf.printf"echo(";
 		print_expr e;
 		Printf.printf")")
-		
+
 let rec print_cmd cmd =
 	match cmd with
 		 ASTstat(stat) -> (
@@ -133,20 +133,22 @@ let rec print_cmd cmd =
 					Printf.printf"),";
 					print_cmd cmds)
 
-		
+
 let print_cmds cmds =
 	Printf.printf"[";
 	print_cmd cmds;
 	Printf.printf"]"
 
 let print_prog prog =
-	match prog with 
-		ASTcmds cmds -> (Printf.printf "prog(";print_cmds cmds;Printf.printf").")
-		
-let print_prolog ansync = 
+	match prog with
+		ASTcmds cmds -> (Printf.printf "prog(";
+											print_cmds cmds;
+											Printf.printf").")
+
+let print_prolog ansync =
 	match ansync with
 		ASTprog prog -> print_prog prog
-		
+
 let _ =
 try
 	let lexbuf = Lexing.from_channel (open_in Sys.argv.(1)) in

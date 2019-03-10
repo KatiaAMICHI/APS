@@ -11,7 +11,7 @@ let string_of_op op =
 		| And -> "and"
 		| Or -> "or"
 		| Not -> "not"
-		
+
 let op_of_string op =
 	match op with
 		  "add" -> Add
@@ -23,20 +23,20 @@ let op_of_string op =
 		| "and" -> And
 		| "or" -> Or
 		| "not" -> Not
-		| _ -> failwith "unknown op"	
+		| _ -> failwith "unknown op"
 
-type typ = 
-	 Int 
+type typ =
+	 Int
 	| Bool
-	| Fun of types*typ 
+	| Fun of types*typ
 
-and types = 
+and types =
 	Typ of typ
 	| Couple of typ*types
 
 type arg = ASTarg of string*typ
 
-type args = Arg of arg 
+type args = Arg of arg
 	 | ASTargs of arg * args
 
 type expr =
@@ -44,7 +44,7 @@ type expr =
 	| ASTident of string
 	| ASTprim of op * expr * expr
 	| ASTunaryPrim of op * expr
-	| ASTtrue 
+	| ASTtrue
 	| ASTfalse
 	| ASTlambda of args * expr
 	| ASTapply of expr * exprs
@@ -54,20 +54,19 @@ and exprs = Expr of expr
 	| ASTexprs of expr * exprs
 
 type dec =
-	  ASTconst of string * typ * expr
+	ASTconst of string * typ * expr
 	| ASTfun of string * typ * args * expr
-  	| ASTrfun of string * typ * args * expr
+  | ASTrfun of string * typ * args * expr
 
-type stat = ASTecho of expr 
+type stat = ASTecho of expr
 
-type cmds = 
+type cmds =
 	ASTstat of stat
 	| ASTdeccmd of dec * cmds
 	| ASTstatcmd of stat * cmds
 
-type prog = 
+type prog =
 	ASTcmds of cmds
 
-type ansyn = 
+type ansyn =
 	| ASTprog of prog
-

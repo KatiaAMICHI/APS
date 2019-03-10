@@ -1,1 +1,0 @@
-[FUN myFun int [x : int] (add x 1);ECHO 1]

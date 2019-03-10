@@ -9,15 +9,15 @@ typeCmds(_,[epsilon],void).
 
 /*(STAT)*/
 typeCmds(C,[stat(X)|Y],void) :- typeStat(C,X,void),
-				typeCmds(C,Y,void).
+																typeCmds(C,Y,void).
 
 /*(DEC)*/
 typeCmds(C,[dec(X)|Y],void) :-  typeDec(C,X,CBIS),
-				typeCmds(CBIS,Y,void).
+																typeCmds(CBIS,Y,void).
 
 /*(ECHO)*/
 typeStat(C,echo(X),void) :- typeExpr(C,X,int).
-	
+
 /*(CONST)*/
 typeDec(C,const(X,TYPE,EXPR),[(X,TYPE)|C]) :- typeExpr(C,EXPR,TYPE).
 
@@ -41,7 +41,7 @@ elle mets tt les type de arg dans RES*/
 get_types_args([],[]).
 get_types_args([(_,T)|ARGS],[T|RES]) :-
 	get_types_args(ARGS,RES).
-	
+
 /*(TRUE)*/
 typeExpr(_,true,bool).
 
@@ -53,19 +53,25 @@ typeExpr(_,int(X),int) :- integer(X).
 
 /*(IDENT)*/
 typeExpr(C,ident(X),T) :- assoc(X,C,T).
-	
+
 /*(IF)*/
 typeExpr(C,if(COND,E1,E2),T) :-	typeExpr(C,COND,bool),
 				typeExpr(C,E1,T),
-				typeExpr(C,E2,T).	
-																								
+				typeExpr(C,E2,T).
+
 /*(APP)*/
-typeExpr(C,apply(ident(F),ARGS),TYPE) :- 	
+typeExpr(C,apply(ident(F),ARGS),TYPE) :-
 	assoc(F,C,arrow(ARGSTYPE,TYPE)),
 	check_types(C,ARGS,ARGSTYPE).
 
+/*(APP lambda)*/
+typeExpr(C,apply(X,VARGS),TYPE) :-
+	typeExpr(C,X,arrow(TYPEARGS,TYPE)).
+	typeExpr(C,VARGS,TYPEARGS).
+
 /*(ABS)*/
-typeExpr(C,lambda(ARGS,BODY),arrow(_,TYPEF)) :-	
+typeExpr(C,lambda(ARGS,BODY),arrow(TYPEARGS,TYPEF)) :-
+	get_types_args(ARGS,TYPEARGS),
 	append(C,ARGS,CBIS),
 	typeExpr(CBIS,BODY,TYPEF).
 
@@ -90,8 +96,8 @@ typeExpr(C,or(X,Y),bool) :- typeExpr(C,X,bool),
 				  typeExpr(C,Y,bool).
 
 typeExpr(C,eq(X,Y),bool) :- typeExpr(C,X,int),
-			  	  typeExpr(C,Y,int).	
-		
+			  	  typeExpr(C,Y,int).
+
 typeExpr(C,lt(X,Y),bool) :- typeExpr(C,X,int),
  				  typeExpr(C,Y,int).
 
@@ -101,10 +107,8 @@ check_types(_,[],[]).
 check_types(C,[ARG|ARGS],[ARGTYPE|ARGSTYPE]) :-	typeExpr(C,ARG,ARGTYPE),
 																								check_types(C,ARGS,ARGSTYPE).
 
-	
-main_stdin :- 
+
+main_stdin :-
 	read(user_input,T),
 	typeProg([], T,R),
 	print(R).
-
-

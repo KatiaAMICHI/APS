@@ -1,0 +1,8 @@
+src/main/syntaxe/*.cmi
+src/main/syntaxe/*.cmo
+src/main/syntaxe/*.mli
+src/main/syntaxe/lexer.ml
+src/main/syntaxe/parser.ml
+src/main/syntaxe/toProlog
+
+
