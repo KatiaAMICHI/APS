@@ -12,6 +12,7 @@ parser: ast.ml lexer.mll parser.mly
 	$(OCAMLC) -c parser.mli
 	$(OCAMLC) -c lexer.ml
 	$(OCAMLC) -c parser.ml
+	$(OCAMLC) -c eval.ml
 
 clean:
 	rm -f *.cmo

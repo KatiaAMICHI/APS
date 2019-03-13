@@ -40,15 +40,16 @@ type args = Arg of arg
 	 | ASTargs of arg * args
 
 type expr =
-	  ASTintv of int
+	ASTtrue
+	| ASTfalse
+	| ASTnum of int
 	| ASTident of string
 	| ASTprim of op * expr * expr
 	| ASTunaryPrim of op * expr
-	| ASTtrue
-	| ASTfalse
+	| ASTif of expr * expr * expr
 	| ASTlambda of args * expr
 	| ASTapply of expr * exprs
-	| ASTif of expr * expr * expr
+	
 
 and exprs = Expr of expr
 	| ASTexprs of expr * exprs

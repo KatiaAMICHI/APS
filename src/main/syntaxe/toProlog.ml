@@ -40,7 +40,7 @@ let rec print_expr e =
 match e with
 	ASTtrue -> Printf.printf"true"
 	| ASTfalse -> Printf.printf"false"
-	| ASTintv n -> Printf.printf"int(%d)" n
+	| ASTnum n -> Printf.printf"int(%d)" n
 	| ASTident x -> Printf.printf"ident(%s)" x
 	| ASTprim(op, e1, e2) -> (
 		Printf.printf"%s" (string_of_op op);

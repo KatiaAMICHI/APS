@@ -79,7 +79,7 @@ args :
 expr :
 	TRUE { ASTtrue }
 	| FALSE { ASTfalse }
-	| INTV { ASTintv($1) }
+	| INTV { ASTnum($1) }
 	| IDENT { ASTident($1) }
 	| LPAR ADD expr expr RPAR  { ASTprim(Ast.Add, $3, $4 ) }
 	| LPAR SUB expr expr RPAR  { ASTprim(Ast.Sub, $3, $4 ) }
