@@ -32,12 +32,7 @@ type token =
   | LT
   | PC
   | VAR
-  | PROC
-  | PROCREC
   | SET
-  | IFBLOCK
-  | WHILE
-  | CALL
 
 val ansyn :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.ansyn

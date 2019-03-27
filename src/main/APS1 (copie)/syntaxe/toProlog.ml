@@ -6,7 +6,7 @@ match t with
 	Int -> Printf.printf"int"
 	| Bool -> Printf.printf"bool"
 	(*APS1*)
-	| Void -> Printf.printf"void"
+	(*)| Void -> Printf.printf"void"*)
 	(*APS1*)
 	| Fun(ts, t) -> (
 		Printf.printf"arrow([";
@@ -124,7 +124,7 @@ and print_dec dec =
 			Printf.printf"var(%s,"s;
 			print_type t;
 			Printf.printf")")
-		| ASTproc(s,a,b) -> (
+		(*| ASTproc(s,a,b) -> (
 			Printf.printf"proc(%s," s;
 			Printf.printf",[";
 			print_args a;
@@ -137,7 +137,7 @@ and print_dec dec =
 			print_args a;
 			Printf.printf"],";
 			print_block b;
-			Printf.printf")")
+			Printf.printf")") *)
 		(* APS1 *)
 
 and print_stat stat =
@@ -153,7 +153,7 @@ and print_stat stat =
 		Printf.printf",";
 		print_expr e;
 		Printf.printf")")
-	| ASTifblock(e,b1,b2) -> (
+	(*| ASTifblock(e,b1,b2) -> (
 		Printf.printf"ifblock(";
 		print_expr e;
 		Printf.printf",";
@@ -172,7 +172,7 @@ and print_stat stat =
 		print_expr s;
 		Printf.printf",";
 		print_expr e;
-		Printf.printf")")
+		Printf.printf")")*)
 		(* APS1 *)
 
 and print_cmd cmd =

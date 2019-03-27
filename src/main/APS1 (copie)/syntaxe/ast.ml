@@ -29,7 +29,7 @@ type typ =
 	| Bool
 	| Fun of types*typ
 	(*aps1*)
-	| Void
+	(*)| Void*)
 	(*aps1*)
 
 and types =
@@ -63,8 +63,8 @@ type dec =
   | ASTrfun of string * typ * args * expr
 	(* APS1 *)
 	| ASTvar of string * typ
-	| ASTproc of string * args * block
-	| ASTprocrec of string * args * block
+	(* | ASTproc of string * args * block *)
+	(* | ASTprocrec of string * args * block *)
 	(* APS1 *)
 
 and stat =

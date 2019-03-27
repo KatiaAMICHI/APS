@@ -1,5 +1,5 @@
 [
   VAR x int;
-  SET x 2;
+  SET x 42;
   ECHO x
 ]

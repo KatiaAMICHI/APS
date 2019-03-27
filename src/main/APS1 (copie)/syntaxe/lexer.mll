@@ -34,16 +34,12 @@ rule token = parse
 	| "mul"	{ MUL }
 	| "sub" { SUB }
   | "div" { DIV }
+  | "div" { DIV }
+  | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']* as id { IDENT(id) }
   (*aps1*)
   | "VAR" { VAR }
   | "SET" { SET }
-  | "PROC" { PROC }
-  | "IF" { IFBLOCK }
-  | "WHILE" { WHILE }
-  | "CALL" { CALL }
-  | "VOID" {VOID}
   (*aps1*)
-  | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']* as id { IDENT(id) }
 	| eof { raise Eof }
  	| _ as lxm {	Printf.eprintf "Unknown caracter '%c' : ignored\n" lxm;
 			flush stderr;

@@ -18,8 +18,8 @@ open Ast
 %token PC
 
 /*APS1*/
-%token VAR PROC PROCREC VOID
-%token SET IFBLOCK WHILE CALL
+%token VAR
+%token SET
 /*APS1*/
 
 /* Précédences (priorité + associativité) des terminaux */
@@ -66,17 +66,17 @@ dec :
 	| FUN REC IDENT typ LCRO args RCRO expr {ASTrfun ($3, $4, $6, $8) };
 	/* APS1 */
 	| VAR IDENT typ {ASTvar($2, $3)  }
-	| PROC IDENT LCRO args RCRO block { ASTproc($2, $4, $6)}
-	| PROC REC IDENT LCRO args RCRO block { ASTprocrec($3, $5, $7)}
+	/*| PROC IDENT args block { ASTproc($2, $3, $4)}
+	| PROC REC IDENT LCRO args RCRO block { ASTprocrec($3, $5, $7)}*/
 	/* APS1 */
 
 stat :
 	ECHO expr { ASTecho($2) };
 	/* APS1 */
 	| SET expr expr { ASTset($2, $3) }
-	| IFBLOCK expr block block { ASTifblock($2, $3, $4) }
+	/*| IFBLOCK expr block block { ASTifblock($2, $3, $4) }
 	| WHILE expr block { ASTwhile($2, $3) }
-	| CALL expr expr { ASTcall($2, $3) }
+	| CALL expr expr { ASTcall($2, $3) }*/
 	/* APS1 */
 
 typ :
@@ -84,7 +84,7 @@ typ :
 	| BOOL { Bool }
 	| LPAR types ARROW typ RPAR { Fun($2, $4) };
 	/* APS1 */
-	| VOID  { Void }
+	/* | VOID  { ASTVoidType }*/
 	/* APS1 */
 
 types :
