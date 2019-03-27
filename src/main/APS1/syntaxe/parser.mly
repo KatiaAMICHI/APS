@@ -51,16 +51,7 @@ cmds :
 	| stat PC cmds { ASTstatcmd($1,$3) };
 
 block :
-	LCRO cmds RCRO { ASTcmds($2)}
-
-stat :
-	ECHO expr { ASTecho($2) };
-	/* APS1 */
-	| SET IDENT expr { ASTset($2, $3) }
-	| IFBLOCK expr block1 block2 { ASTifblock($2, $3, $4) }
-	| WHILE expr block { ASTwhile($2, $3) }
-	| CALL IDENT expr { ASTcall($2, $3) }
-	/* APS1 */
+	LCRO cmds RCRO { ASTblock($2)}
 
 dec :
 	CONST IDENT typ expr { ASTconst($2, $3, $4) }
@@ -70,6 +61,15 @@ dec :
 	| VAR IDENT typ { ASTvar($2, $3) }
 	| PROC IDENT args block { ASTproc($2, $3, $4)}
 	| PROCREC IDENT args block { ASTprocrec($2, $3, $4)}
+	/* APS1 */
+
+stat :
+	ECHO expr { ASTecho($2) };
+	/* APS1 */
+	| SET IDENT expr { ASTset($2, $3) }
+	| IFBLOCK expr block block { ASTifblock($2, $3, $4) }
+	| WHILE expr block { ASTwhile($2, $3) }
+	| CALL IDENT expr { ASTcall($2, $3) }
 	/* APS1 */
 
 typ :
@@ -104,7 +104,7 @@ expr :
 	| LPAR OR expr expr RPAR  { ASTprim(Ast.Or, $3, $4 ) }
 	| LCRO args RCRO expr { ASTlambda($2, $4)}
 	| LPAR expr exprs RPAR { ASTapply($2,$3) }
-	| LPAR IF expr expr expr RPAR { ASTif($3, $4, $5) }; (enlever en APS1: IF dans STAT)
+	| LPAR IF expr expr expr RPAR { ASTif($3, $4, $5) };
 
 exprs : expr {Expr($1)}
 	| expr exprs { ASTexprs($1, $2) };

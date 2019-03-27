@@ -86,28 +86,35 @@ match es with
 let print_dec dec =
 	match dec with
 	 ASTconst(x,t,e)  -> (
-		Printf.printf"const(%s,"x;
-	 	print_type t;
-	 	Printf.printf",";
-	 	print_expr e;
-	 	Printf.printf")")
-	| ASTfun(s,t,a,e) -> (
-		Printf.printf"fun(%s," s;
-		print_type t;
-		Printf.printf",[";
-		print_args a;
-		Printf.printf"],";
-		print_expr e;
-		Printf.printf")")
-  	| ASTrfun(s,t,a,e) -> (
-		Printf.printf"funRec(%s," s;
-		print_type t;
-		Printf.printf",[";
-		print_args a;
-		Printf.printf"],";
-		print_expr e;
-		Printf.printf")")
-
+			Printf.printf"const(%s,"x;
+		 	print_type t;
+		 	Printf.printf",";
+		 	print_expr e;
+		 	Printf.printf")")
+		| ASTfun(s,t,a,e) -> (
+			Printf.printf"fun(%s," s;
+			print_type t;
+			Printf.printf",[";
+			print_args a;
+			Printf.printf"],";
+			print_expr e;
+			Printf.printf")")
+		| ASTrfun(s,t,a,e) -> (
+			Printf.printf"funRec(%s," s;
+			print_type t;
+			Printf.printf",[";
+			print_args a;
+			Printf.printf"],";
+			print_expr e;
+			Printf.printf")")
+		(* APS1 *)
+		| ASTvar(s,t) ->
+			Printf.printf"var(%s,"x;
+			print_type t;
+			Printf.printf")")
+		| ASTproc of string * args * block
+		| ASTprocrec of string * args * block
+		(* APS1 *)
 
 let print_stat stat =
 	match stat with

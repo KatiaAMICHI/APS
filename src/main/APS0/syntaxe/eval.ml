@@ -6,7 +6,6 @@ and value =
 	| InF of expr * string list * (string * value) list (*(expr, args, ... )*)
 	| InFR of string * value (*(ident(f),InF())*)
 
-(*a vérifier !! InN(truc) = truc*)
 let get_value v =
 	match v with
 	InN(x) -> string_of_int x
