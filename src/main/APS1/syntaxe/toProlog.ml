@@ -126,14 +126,14 @@ and print_dec dec =
 			Printf.printf")")
 		| ASTproc(s,a,b) -> (
 			Printf.printf"proc(%s," s;
-			Printf.printf",[";
+			Printf.printf"[";
 			print_args a;
 			Printf.printf"],";
 			print_block b;
 			Printf.printf")")
 		| ASTprocrec(s,a,b) -> (
 			Printf.printf"procrec(%s," s;
-			Printf.printf",[";
+			Printf.printf"[";
 			print_args a;
 			Printf.printf"],";
 			print_block b;
@@ -148,9 +148,7 @@ and print_stat stat =
 		Printf.printf")")
 		(* APS1 *)
 	| ASTset(s,e) -> (
-		Printf.printf"set(%s,";
-		print_expr s;
-		Printf.printf",";
+		Printf.printf"set(%s,"s;
 		print_expr e;
 		Printf.printf")")
 	| ASTifblock(e,b1,b2) -> (
@@ -168,9 +166,7 @@ and print_stat stat =
 		print_block b;
 		Printf.printf")")
 	| ASTcall(s,e) -> (
-		Printf.printf"call(%s";
-		print_expr s;
-		Printf.printf",";
+		Printf.printf"call(%s,"s;
 		print_expr e;
 		Printf.printf")")
 		(* APS1 *)

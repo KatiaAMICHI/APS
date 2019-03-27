@@ -70,10 +70,10 @@ type dec =
 and stat =
 	ASTecho of expr
 	(* APS1 *)
-	| ASTset of expr * expr
+	| ASTset of string * expr
 	| ASTifblock of expr * block * block
 	| ASTwhile of expr * block
-	| ASTcall of expr * expr
+	| ASTcall of string * expr
 	(* APS1 *)
 
 and cmds =

@@ -73,10 +73,10 @@ dec :
 stat :
 	ECHO expr { ASTecho($2) };
 	/* APS1 */
-	| SET expr expr { ASTset($2, $3) }
+	| SET IDENT expr { ASTset($2, $3) }
 	| IFBLOCK expr block block { ASTifblock($2, $3, $4) }
 	| WHILE expr block { ASTwhile($2, $3) }
-	| CALL expr expr { ASTcall($2, $3) }
+	| CALL IDENT expr { ASTcall($2, $3) }
 	/* APS1 */
 
 typ :

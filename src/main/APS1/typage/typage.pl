@@ -4,6 +4,11 @@ assoc(X, [_|XS], V) :- assoc(X, XS, V).
 /*(PROG)*/
 typeProg(C,prog(X),void) :- typeCmds(C,X,void).
 
+/************APS1***********/
+/*(BLOCK)*/
+typeBlock(C, block(X), void) :- typeCmds(C,X,void).
+/************APS1***********/
+
 /*(END)*/
 typeCmds(_,[epsilon],void).
 
@@ -18,8 +23,57 @@ typeCmds(C,[dec(X)|Y],void) :-  typeDec(C,X,CBIS),
 /*(ECHO)*/
 typeStat(C,echo(X),void) :- typeExpr(C,X,int).
 
+/************APS1***********/
+
+/*(SET)*/
+typeStat(C,set(X, E),void) :-
+	assoc(X,C,T),
+	typeExpr(C,E,T).
+
+/*(IFBLOCK)*/
+typeStat(C,ifblock(COND,B1,B2),void) :-
+	typeExpr(C,COND,bool),
+	typeBlock(C,B1,void),
+	typeBlock(C,B2,void).
+
+/*(WHILE)*/
+typeStat(C,while(E,BK),void) :-
+	typeExpr(C,E,bool),
+	typeBlock(C,BK,void).
+
+/*(CALL)*/
+typeStat(C,call(I,ES),void) :-
+	assoc(P,C,arrow(ARGSTYPE,void)),
+	check_types(C,ARGS,ARGSTYPE).
+
+/*************APS1***********/
+
+
 /*(CONST)*/
 typeDec(C,const(X,TYPE,EXPR),[(X,TYPE)|C]) :- typeExpr(C,EXPR,TYPE).
+
+/************APS1***********/
+
+/*(VAR)*/
+typeDec(C,var(X,T),CN) :- CN=[(X,TYPE)|C].
+
+/*(PROC)*/
+typeDec(C,proc(X,ARGS,BODY),CN) :-
+	append(ARGS,C,CAR),
+	typeBlock(CAR,BODY,void),
+	get_types_args(ARGS,RES),
+	CN=[(ID,arrow(RES,void))|C].
+
+/*(PROC REC)*/
+typeDec(C,procrec(X,ARGS,BODY),CN):-
+	get_types_args(ARGS,RES),
+	append(ARGS,C,CARGS),
+	CT = [(X,arrow(RES,void))|CARGS],
+	typeBlock(CT,BODY,void),
+	CBIS=[(X,arrow(RES,void))|C].
+
+/************APS1***********/
+
 
 /*(FUN)*/
 typeDec(C,fun(ID,TYPE,ARGS,BODY),[(ID,arrow(TYPESIN,TYPE))|C]):-
