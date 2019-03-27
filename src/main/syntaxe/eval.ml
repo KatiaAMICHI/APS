@@ -88,10 +88,13 @@ and eval_expr env ast =
 	| ASTlambda(args,expr) -> (InF(expr, (parse_args args), env))
 	| ASTapply(expr,args) -> let args_list = eval_args env args in
 		(match eval_expr env expr with
-		(*InF(body,params, envf) ->
-						let env_bis = ref ((List.map2 (fun x y -> (x,y)) params args_list)@envf) in
-						eval_expr env_bis	body*)
-	| _ -> failwith "ASTapply fail")
+		InF(body,params, envf) ->
+						let env_bis = ((List.map2 (fun x y -> (x,y)) params args_list)@envf) in
+						eval_expr env_bis	body
+		| InFR(f, InF(body,params, envf)) ->
+							let env_bis = ((f,List.assoc f env)::(List.map2 (fun x y -> (x,y)) params args_list)@envf) in
+							eval_expr env_bis	body
+		| _ -> failwith "ASTapply fail")
 
 let print n =
 	match n with
@@ -109,6 +112,7 @@ let eval_dec env de =
 let eval_stat env st r =
 	match st with
 	ASTecho(x) -> let res = eval_expr env x in r:=!r^(get_value res)^"\n"
+	| _ -> failwith "[eval_stat] fail"
 
 
 let rec eval_cmds env cm r =
