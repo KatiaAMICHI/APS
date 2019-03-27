@@ -1,5 +1,6 @@
 open Ast
 
+
 let rec print_type t =
 match t with
 	Int -> Printf.printf"int"
@@ -21,14 +22,14 @@ match ts with
 		print_types ts;
 		Printf.printf")")
 
-let print_arg a =
+and print_arg a =
 match a with
 	ASTarg(a,t) -> (
 		Printf.printf"(%s," a;
 		print_type t;
 		Printf.printf")")
 
-let rec print_args a =
+and print_args a =
 match a with
 	Arg a -> print_arg a
 	| ASTargs(a,args) -> (
@@ -36,7 +37,7 @@ match a with
 		Printf.printf",";
 		print_args args)
 
-let rec print_expr e =
+and print_expr e =
 match e with
 	ASTtrue -> Printf.printf"true"
 	| ASTfalse -> Printf.printf"false"
@@ -82,8 +83,14 @@ match es with
 	Expr(e) -> print_expr e
 	| ASTexprs(e,es)-> (print_expr e; Printf.printf" "; print_exprs es)
 
+and print_block block =
+match block with
+|ASTblock b ->
+	(Printf.printf"block([";
+	print_cmd b;
+	Printf.printf"])")
 
-let print_dec dec =
+and print_dec dec =
 	match dec with
 	 ASTconst(x,t,e)  -> (
 			Printf.printf"const(%s,"x;
@@ -108,22 +115,58 @@ let print_dec dec =
 			print_expr e;
 			Printf.printf")")
 		(* APS1 *)
-		| ASTvar(s,t) ->
-			Printf.printf"var(%s,"x;
+		| ASTvar(s,t) -> (
+			Printf.printf"var(%s,"s;
 			print_type t;
 			Printf.printf")")
-		| ASTproc of string * args * block
-		| ASTprocrec of string * args * block
+		| ASTproc(s,a,b) -> (
+			Printf.printf"proc(%s," s;
+			Printf.printf",[";
+			print_args a;
+			Printf.printf"],";
+			print_block b;
+			Printf.printf")")
+		| ASTprocrec(s,a,b) -> (
+			Printf.printf"procrec(%s," s;
+			Printf.printf",[";
+			print_args a;
+			Printf.printf"],";
+			print_block b;
+			Printf.printf")")
 		(* APS1 *)
 
-let print_stat stat =
+and print_stat stat =
 	match stat with
 	ASTecho e -> (
 		Printf.printf"echo(";
 		print_expr e;
 		Printf.printf")")
+		(* APS1 *)
+	| ASTset(s,e) -> (
+		Printf.printf"set(%s,"s;
+		print_expr e;
+		Printf.printf")")
+	| ASTifblock(e,b1,b2) -> (
+		Printf.printf"ifblock(";
+		print_expr e;
+		Printf.printf",";
+		print_block b1;
+		Printf.printf",";
+		print_block b2;
+		Printf.printf")")
+	| ASTwhile(e,b) -> (
+		Printf.printf"while(";
+		print_expr e;
+		Printf.printf",";
+		print_block b;
+		Printf.printf")")
+	| ASTcall(s,e) -> (
+		Printf.printf"call(%s,"s;
+		print_expr e;
+		Printf.printf")")
+		(* APS1 *)
 
-let rec print_cmd cmd =
+and print_cmd cmd =
 	match cmd with
 		 ASTstat(stat) -> (
 				Printf.printf "stat(";
@@ -140,17 +183,16 @@ let rec print_cmd cmd =
 					Printf.printf"),";
 					print_cmd cmds)
 
-
-let print_cmds cmds =
+(*and print_cmds cmds =
 	Printf.printf"[";
 	print_cmd cmds;
 	Printf.printf"]"
-
+*)
 let print_prog prog =
 	match prog with
-		ASTcmds cmds -> (Printf.printf "prog(";
-											print_cmds cmds;
-											Printf.printf").")
+		ASTcmds cmds -> (Printf.printf "prog([";
+											print_cmd cmds;
+											Printf.printf"]).")
 
 let print_prolog ansync =
 	match ansync with

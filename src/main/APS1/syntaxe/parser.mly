@@ -50,15 +50,17 @@ cmds :
 	| dec PC cmds { ASTdeccmd($1,$3) }
 	| stat PC cmds { ASTstatcmd($1,$3) };
 
+/* APS1 */
 block :
 	LCRO cmds RCRO { ASTblock($2)}
+/* APS1 */
 
 dec :
 	CONST IDENT typ expr { ASTconst($2, $3, $4) }
 	| FUN IDENT typ LCRO args RCRO expr {ASTfun($2, $3, $5, $7) }
 	| FUN REC IDENT typ LCRO args RCRO expr {ASTrfun ($3, $4, $6, $8) };
 	/* APS1 */
-	| VAR IDENT typ { ASTvar($2, $3) }
+	| VAR IDENT typ {ASTvar($2, $3)  }
 	| PROC IDENT args block { ASTproc($2, $3, $4)}
 	| PROCREC IDENT args block { ASTprocrec($2, $3, $4)}
 	/* APS1 */
