@@ -4,7 +4,7 @@ exception Eof
 }
 
 (*Déclaration du dictionnaire (source -> terminal/token) *)
-rule token = parse 
+rule token = parse
         [' ' '\t' '\n' '\r'] { token lexbuf }
 	| ';'	{ PC }
 	| ':'   { COLON }
@@ -25,7 +25,7 @@ rule token = parse
 	| ('-'?)['0'-'9']+ as i { INTV(int_of_string(i)) }
 	| "true" { TRUE }
 	| "false" { FALSE }
-	| "not"	{ NOT }	
+	| "not"	{ NOT }
 	| "and" { AND }
 	| "or"	{ OR }
 	| "eq"	{ EQ }
@@ -33,10 +33,18 @@ rule token = parse
 	| "add"	{ ADD }
 	| "mul"	{ MUL }
 	| "sub" { SUB }
-	| "div" { DIV }	
-	| ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']* as id { IDENT(id) }
+  | "div" { DIV }
+  | "div" { DIV }
+  | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']* as id { IDENT(id) }
+  | "VAR" { VAR }
+  | "PROC" { PROC }
+  | "PROCREC" { PROCREC }
+  | "SET" { SET }
+  | "IF" { IFBLOCK }
+  | "WHILE" { WHILE }
+  | "CALL" { CALL }
 	| eof { raise Eof }
- 	| _ as lxm {	Printf.eprintf "Unknown caracter '%c' : ignored\n" lxm; 
-			flush stderr; 
+ 	| _ as lxm {	Printf.eprintf "Unknown caracter '%c' : ignored\n" lxm;
+			flush stderr;
 			token lexbuf
 			}

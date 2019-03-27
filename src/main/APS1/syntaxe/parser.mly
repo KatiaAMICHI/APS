@@ -5,7 +5,6 @@ open Ast
 %}
 
 /* Déclaration des terminaux */
-
 %token ASTERISK COMMA ARROW COLON
 %token LPAR RPAR LCRO RCRO
 %token CONST IF FUN REC ECHO
@@ -18,10 +17,11 @@ open Ast
 %token EQ NOT AND OR LT
 %token PC
 
-
+/*APS1*/
+%token VAR PROC PROCREC
+%token SET IFBLOCK WHILE CALL
 
 /* Précédences (priorité + associativité) des terminaux */
-
 %nonassoc EQ NOT LT
 %left COMMA
 %left ASTERISK
@@ -32,11 +32,9 @@ open Ast
 %nonassoc PC
 
 /*Déclaration du non-terminal axiome (analyse syntaxique) et du type de son attribut */
-
 %start ansyn
 
 %type<Ast.ansyn> ansyn
-
 
 %%
 
@@ -52,13 +50,27 @@ cmds :
 	| dec PC cmds { ASTdeccmd($1,$3) }
 	| stat PC cmds { ASTstatcmd($1,$3) };
 
+block :
+	LCRO cmds RCRO { ASTcmds($2)}
+
 stat :
 	ECHO expr { ASTecho($2) };
+	/* APS1 */
+	| SET IDENT expr { ASTset($2, $3) }
+	| IFBLOCK expr block1 block2 { ASTifblock($2, $3, $4) }
+	| WHILE expr block { ASTwhile($2, $3) }
+	| CALL IDENT expr { ASTcall($2, $3) }
+	/* APS1 */
 
 dec :
 	CONST IDENT typ expr { ASTconst($2, $3, $4) }
 	| FUN IDENT typ LCRO args RCRO expr {ASTfun($2, $3, $5, $7) }
 	| FUN REC IDENT typ LCRO args RCRO expr {ASTrfun ($3, $4, $6, $8) };
+	/* APS1 */
+	| VAR IDENT typ { ASTvar($2, $3) }
+	| PROC IDENT args block { ASTproc($2, $3, $4)}
+	| PROCREC IDENT args block { ASTprocrec($2, $3, $4)}
+	/* APS1 */
 
 typ :
 	INT { Int }
@@ -92,7 +104,7 @@ expr :
 	| LPAR OR expr expr RPAR  { ASTprim(Ast.Or, $3, $4 ) }
 	| LCRO args RCRO expr { ASTlambda($2, $4)}
 	| LPAR expr exprs RPAR { ASTapply($2,$3) }
-	| LPAR IF expr expr expr RPAR { ASTif($3, $4, $5) };
+	| LPAR IF expr expr expr RPAR { ASTif($3, $4, $5) }; (enlever en APS1: IF dans STAT)
 
 exprs : expr {Expr($1)}
 	| expr exprs { ASTexprs($1, $2) };
