@@ -2,8 +2,9 @@ LEX_ML = ocamllex
 YACC_ML = /usr/local/bin/ocamlyacc
 OCAMLC = ocamlc
 
-toProlog: parser toProlog.ml
+toProlog: parser toProlog.ml eval.ml
 	$(OCAMLC) -o toProlog ast.cmo lexer.cmo parser.cmo toProlog.ml
+	$(OCAMLC) -o eval ast.cmo lexer.cmo parser.cmo eval.ml
 
 parser: ast.ml lexer.mll parser.mly
 	$(OCAMLC) -c ast.ml
@@ -21,3 +22,4 @@ clean:
 	rm -f lexer.ml
 	rm -f parser.mli
 	rm -f parser.ml
+	rm -f eval

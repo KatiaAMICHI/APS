@@ -11,7 +11,6 @@ let string_of_op op =
 		| And -> "and"
 		| Or -> "or"
 		| Not -> "not"
-
 let op_of_string op =
 	match op with
 		  "add" -> Add
