@@ -5,6 +5,18 @@ and value =
 	InN of int
 	| InF of expr * string list * (string * value) list (*(expr, args, ... )*)
 	| InFR of string * value (*(ident(f),InF())*)
+	(*aps1*)
+	| InA of int
+	| InP of block * string list * (string * valeur) list
+	| InPR of string * valeur
+	(*aps1*)
+
+let cpt = ref 0
+
+let alloc mem =
+	let res = (!cpt,(!cpt,ref (InN(-1)))::mem) in
+		cpt:=(!cpt+1);
+		res
 
 let get_value v =
 	match v with
@@ -13,8 +25,8 @@ let get_value v =
 
 let int_of_bool x =
 	match x with
-	|true -> 1
-	|false -> 0
+	| true -> 1
+	| false -> 0
 
 let rec ident_exprs exprs =
 	match exprs with
@@ -100,17 +112,34 @@ let print n =
 	 InN(n) -> (string_of_int n)
 	| _ -> failwith "[print] fail"
 
-let eval_dec env de =
+let eval_dec env mem de =
 	match de with
 	(* ajouter la const dans notre env <=> [prend] (env [et] exp) [produit] v) *)
 	ASTconst(x,t,expr) -> (x, (eval_expr env expr))::env
 	| ASTfun(x,t,args,expr) -> (x, (InF(expr,(parse_args args), env)))::env(* ajouter la fun dans notre env*)
   | ASTrfun(x,t,args,expr) -> (x, (InFR(x, InF(expr,(parse_args args), env))))::env
+	(* APS1 *)
+	| ASTvar(id, t) -> let (a,new_mem) = alloc(mem) in ((id,InA(a))::env,new_mem)
+	| ASTproc(id,args,bk) -> ((id,InP(bk,parse_args args,env))::env,mem)
+	| ASTprocrec(id,args,bk) -> ((id,InPR(id,InP(bk,parse_args args,env)))::env,mem)
+	(* APS1 *)
 	| _ -> failwith "[eval_dec] fail"
 
-let eval_stat env st r =
-	match st with
+(* r : return *)
+let eval_stat env mem r ast =
+	match ast with
 	ASTecho(x) -> let res = eval_expr env x in r:=!r^(get_value res)^"\n"
+	(* APS1 *)
+	| ASTset of string * expr
+	| ASTifblock(e, bk1, bk2) -> if (eval_expr env mem e) = InN(1)
+				then (eval_block env mem r bk1)
+				else (eval_block env mem r bk2)
+	| ASTwhile (e,bk) ->	if (eval_expr env mem e) = InN(0)
+			then (mem,r)
+			else let (new_mem,new_s) = (eval_block env mem r bk) in
+				eval_stat env new_mem new_s ast
+	| ASTcall of string * exprs
+	(* APS1 *)
 	| _ -> failwith "[eval_stat] fail"
 
 
@@ -119,6 +148,13 @@ let rec eval_cmds env cm r =
 	ASTstat(x) -> eval_stat env x r
 	|ASTdeccmd(x,cms) -> let new_env = eval_dec env x in eval_cmds new_env cms r
 	| ASTstatcmd(x,cms) -> eval_stat env x r; eval_cmds env cms r
+
+(* APS1 *)
+and eval_block env mem r ast =
+	match ast with
+	| ASTblock(cmds) -> eval_cmds env mem r cmds
+	| _ ->  failwith "[eval_block] fail"
+(* APS1 *)
 
 let eval_prog prog =
 	match prog with
