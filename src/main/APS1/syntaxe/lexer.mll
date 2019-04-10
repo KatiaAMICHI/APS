@@ -5,24 +5,18 @@ exception Eof
 
 (*Déclaration du dictionnaire (source -> terminal/token) *)
 rule token = parse
-        [' ' '\t' '\n' '\r'] { token lexbuf }
-	| ';'	{ PC }
-	| ':'   { COLON }
-	| '*'	{ ASTERISK }
-	| '('	{ LPAR }
-	| ')'	{ RPAR }
-	| '['	{ LCRO }
-	| ']'	{ RCRO }
-	| ','	{ COMMA }
-	| "->"	{ ARROW }
-	| "CONST" { CONST }
+  (*Séparateurs*)
+  [' ' '\t' '\n' '\r'] { token lexbuf }
+  (*constantes numériques*)
+  | ('-'?)['0'-'9']+ as i { NUM(int_of_string(i)) }
+  (*mots-clefs*)
+  | "CONST" { CONST }
 	| "if" { IF }
 	| "FUN" { FUN }
 	| "REC" { REC }
 	| "ECHO" { ECHO }
 	| "int" { INT }
 	| "bool" { BOOL }
-	| ('-'?)['0'-'9']+ as i { INTV(int_of_string(i)) }
 	| "true" { TRUE }
 	| "false" { FALSE }
 	| "not"	{ NOT }
@@ -43,6 +37,17 @@ rule token = parse
   | "CALL" { CALL }
   | "VOID" {VOID}
   (*aps1*)
+  (*Symboles réservés*)
+  | ';'	{ PC }
+	| ':'   { COLON }
+	| '*'	{ ASTERISK }
+	| '('	{ LPAR }
+	| ')'	{ RPAR }
+	| '['	{ LCRO }
+	| ']'	{ RCRO }
+	| ','	{ COMMA }
+	| "->"	{ ARROW }
+	(*identificateurs*)
   | ['a'-'z''A'-'Z']['a'-'z''A'-'Z''0'-'9']* as id { IDENT(id) }
 	| eof { raise Eof }
  	| _ as lxm {	Printf.eprintf "Unknown caracter '%c' : ignored\n" lxm;

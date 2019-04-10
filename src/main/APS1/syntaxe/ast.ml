@@ -27,16 +27,17 @@ let op_of_string op =
 type typ =
 	 Int
 	| Bool
-	| Fun of types*typ
 	(*aps1*)
+	| Arrow of types * typ
 	| Void
 	(*aps1*)
 
 and types =
 	Typ of typ
-	| Couple of typ*types
+	| Couple of typ * types
 
-type arg = ASTarg of string*typ
+type arg =
+	ASTarg of string * typ
 
 type args =
 	Arg of arg
@@ -73,7 +74,7 @@ and stat =
 	| ASTset of string * expr
 	| ASTifblock of expr * block * block
 	| ASTwhile of expr * block
-	| ASTcall of string * expr
+	| ASTcall of expr * exprs
 	(* APS1 *)
 
 and cmds =

@@ -8,7 +8,7 @@ match t with
 	(*APS1*)
 	| Void -> Printf.printf"void"
 	(*APS1*)
-	| Fun(ts, t) -> (
+	| Arrow(ts, t) -> (
 		Printf.printf"arrow([";
 		print_types ts;
 		Printf.printf"],";
@@ -86,6 +86,15 @@ match es with
 	Expr(e) -> print_expr e
 	| ASTexprs(e,es)-> (print_expr e; Printf.printf" "; print_exprs es)
 
+and print_prolog_params params =
+match params with
+	Expr(e) ->  print_expr e;
+	|ASTexprs(e,params) -> (
+		print_expr e;
+		Printf.printf ",";
+		print_prolog_params params;
+		)
+
 (*aps1*)
 and print_block block =
 match block with
@@ -140,6 +149,8 @@ and print_dec dec =
 			Printf.printf")")
 		(* APS1 *)
 
+
+
 and print_stat stat =
 	match stat with
 	ASTecho e -> (
@@ -166,9 +177,12 @@ and print_stat stat =
 		print_block b;
 		Printf.printf")")
 	| ASTcall(s,e) -> (
-		Printf.printf"call(%s,"s;
-		print_expr e;
-		Printf.printf")")
+		Printf.printf "call(";
+    print_expr s;
+    Printf.printf ",[";
+		print_prolog_params e;
+		Printf.printf "])"
+	  )
 		(* APS1 *)
 
 and print_cmd cmd =

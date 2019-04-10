@@ -18,7 +18,7 @@ type token =
   | MUL
   | SUB
   | DIV
-  | INTV of (int)
+  | NUM of (int)
   | BOOL
   | INT
   | IDENT of (string)
@@ -33,12 +33,11 @@ type token =
   | PC
   | VAR
   | PROC
-  | PROCREC
-  | VOID
   | SET
   | IFBLOCK
   | WHILE
   | CALL
+  | VOID
 
 val ansyn :
   (Lexing.lexbuf  -> token) -> Lexing.lexbuf -> Ast.ansyn

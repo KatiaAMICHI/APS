@@ -10,7 +10,7 @@ open Ast
 %token CONST IF FUN REC ECHO
 %token TRUE FALSE
 %token ADD MUL SUB DIV
-%token <int> INTV
+%token <int> NUM
 %token BOOL INT
 %token <string> IDENT
 %token PLUS MINUS SLASH
@@ -18,8 +18,7 @@ open Ast
 %token PC
 
 /*APS1*/
-%token VAR PROC PROCREC VOID
-%token SET IFBLOCK WHILE CALL
+%token VAR PROC SET IFBLOCK WHILE CALL VOID
 /*APS1*/
 
 /* Précédences (priorité + associativité) des terminaux */
@@ -76,13 +75,14 @@ stat :
 	| SET IDENT expr { ASTset($2, $3) }
 	| IFBLOCK expr block block { ASTifblock($2, $3, $4) }
 	| WHILE expr block { ASTwhile($2, $3) }
-	| CALL IDENT expr { ASTcall($2, $3) }
+	/*| CALL IDENT expr { ASTcall($2, $3) }*/
+	| CALL expr exprs { ASTcall($2, $3) }
 	/* APS1 */
 
 typ :
 	INT { Int }
 	| BOOL { Bool }
-	| LPAR types ARROW typ RPAR { Fun($2, $4) };
+	| LPAR types ARROW typ RPAR { Arrow($2, $4) };
 	/* APS1 */
 	| VOID  { Void }
 	/* APS1 */
@@ -101,7 +101,7 @@ args :
 expr :
 	TRUE { ASTtrue }
 	| FALSE { ASTfalse }
-	| INTV { ASTnum($1) }
+	| NUM { ASTnum($1) }
 	| IDENT { ASTident($1) }
 	| LPAR ADD expr expr RPAR  { ASTprim(Ast.Add, $3, $4 ) }
 	| LPAR SUB expr expr RPAR  { ASTprim(Ast.Sub, $3, $4 ) }
@@ -116,5 +116,6 @@ expr :
 	| LPAR expr exprs RPAR { ASTapply($2,$3) }
 	| LPAR IF expr expr expr RPAR { ASTif($3, $4, $5) };
 
-exprs : expr {Expr($1)}
+exprs :
+	expr { Expr($1) }
 	| expr exprs { ASTexprs($1, $2) };

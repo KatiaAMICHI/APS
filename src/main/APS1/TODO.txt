@@ -1,3 +1,4 @@
 Ajout de EOL
 Changement de INTV à NUM
+Changement du type Fun en Arrow
 git commit --amend ( changer un commit git)
