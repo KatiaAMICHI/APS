@@ -66,12 +66,14 @@ match e with
 		Printf.printf"],";
 		print_expr e;
 		Printf.printf")")
-	| ASTapply(e,es) -> (
-		Printf.printf"apply(";
+	|ASTapply(e,params) -> (
+		Printf.printf "apply(";
 		print_expr e;
-		Printf.printf",[";
-		print_exprs es;
-		Printf.printf"])")
+		Printf.printf ",[";
+		print_prolog_params params;
+		Printf.printf "])"
+		)
+
 	| ASTif(e1, e2, e3) -> (
 		Printf.printf"if(";
 		print_expr e1;
