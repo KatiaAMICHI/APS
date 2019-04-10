@@ -177,8 +177,8 @@ and print_stat stat =
 		print_block b;
 		Printf.printf")")
 	| ASTcall(s,e) -> (
-		Printf.printf "call(";
-    print_expr s;
+		Printf.printf "call(%s"s;
+    (*print_expr s;*)
     Printf.printf ",[";
 		print_prolog_params e;
 		Printf.printf "])"

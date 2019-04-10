@@ -74,7 +74,6 @@ typeDec(C,procrec(X,ARGS,BODY),CN):-
 
 /************APS1***********/
 
-
 /*(FUN)*/
 typeDec(C,fun(ID,TYPE,ARGS,BODY),[(ID,arrow(TYPESIN,TYPE))|C]):-
 	append(C,ARGS,CARGS),

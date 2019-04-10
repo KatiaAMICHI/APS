@@ -1,3 +1,0 @@
-Ajout de EOL
-Changement de INTV à NUM
-git commit --amend ( changer un commit git)

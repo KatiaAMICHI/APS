@@ -76,7 +76,7 @@ stat :
 	| IFBLOCK expr block block { ASTifblock($2, $3, $4) }
 	| WHILE expr block { ASTwhile($2, $3) }
 	/*| CALL IDENT expr { ASTcall($2, $3) }*/
-	| CALL expr exprs { ASTcall($2, $3) }
+	| CALL IDENT exprs { ASTcall($2, $3) }
 	/* APS1 */
 
 typ :

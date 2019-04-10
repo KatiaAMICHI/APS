@@ -74,7 +74,7 @@ and stat =
 	| ASTset of string * expr
 	| ASTifblock of expr * block * block
 	| ASTwhile of expr * block
-	| ASTcall of expr * exprs
+	| ASTcall of string * exprs
 	(* APS1 *)
 
 and cmds =
