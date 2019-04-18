@@ -95,11 +95,9 @@ and eval_oprim_una env mem op e =
 	match op with
 	Not -> (
 		match (eval_expr mem env e) with
-		InN b1 -> InN(1 - b1)
-		| _ -> failwith "it not Not op")
-	(*| True -> InN 1
-	| False -> InN 0*)
-	| _ -> failwith "None op"
+		InN(b1) ->  InN(1 - b1)
+		| _ -> failwith "it not Not op_una")
+	| _ -> failwith "None op unary"
 
 and eval_expr env mem ast =
 	match ast with
@@ -110,12 +108,12 @@ and eval_expr env mem ast =
 									  |InA(a) -> !(List.assoc a mem)
 									  |v -> v)
 	| ASTprim(op,e1,e2) -> (eval_oprim_bin env mem op e1 e2)
-	(*)| ASTunaryPrim(op,e) -> (eval_oprim_una env mem op e)*)
+	| ASTunaryPrim(op,e) -> get_string (eval_oprim_una env mem op e)
 	| ASTif(cond,th,el) -> (if(bool_of_int (eval_expr env mem cond))
 													then eval_expr env mem th
 													else eval_expr env mem el)
 	| ASTlambda(args,expr) -> (InF(expr, (parse_args args), env))
-	(*)| ASTapply(expr,args) -> let args_list = eval_args env mem args in
+	| ASTapply(expr,args) -> let args_list = eval_args env mem args in
 		(match eval_expr env mem expr with
 		InF(body,params, envf) ->
 						let env_bis = ((List.map2 (fun x y -> (x,y)) params args_list)@envf) in
@@ -123,7 +121,7 @@ and eval_expr env mem ast =
 		| InFR(f, InF(body,params, envf)) ->
 							let env_bis = ((f,List.assoc f env)::(List.map2 (fun x y -> (x,y)) params args_list)@envf) in
 							eval_expr env_bis	mem body
-		| _ -> failwith "ASTapply fail"*)
+		| _ -> failwith "ASTapply fail")
 
 and print n =
 	match n with
@@ -132,11 +130,11 @@ and print n =
 
 and eval_dec env mem ast =
 	match ast with
-	(* ajouter la const dans notre env <=> [prend] (env [et] exp) [produit] v)
-	|ASTConst(id,t,e) -> let v = eval_expr env mem e in  ((id,v)::env,mem)
-	|ASTFun(id,t,args,e) -> ((id,InF(e,parse_args args,env))::env,mem)
-	|ASTFunRec(id,t,args,e) -> let params = parse_args args in
-								 ((id,InFR(id,InF(e,params,env)))::env,mem)*)
+	(* ajouter la const dans notre env <=> [prend] (env [et] exp) [produit] v)*)
+	|ASTconst(id,t,e) -> let v = eval_expr env mem e in ((id,v)::env,mem)
+	|ASTfun(id,t,args,e) -> ((id,InF(e,parse_args args,env))::env,mem)
+	|ASTrfun(id,t,args,e) -> let params = parse_args args in
+								 ((id,InFR(id,InF(e,params,env)))::env,mem)
 	(* APS1 *)
 	| ASTvar(id, t) -> let (a,new_mem) = alloc(mem) in ((id,InA(a))::env,new_mem)
 	| ASTproc(id,args,bk) -> ((id,InP(bk,parse_args args,env))::env,mem)
@@ -161,16 +159,16 @@ and eval_stat env mem r ast =
 	| ASTwhile (e,bk) ->	if (eval_expr env mem e) = InN(0)
 												then (mem,r)
 												else let (new_mem,new_r) = (eval_block env mem r bk) in
-													eval_stat env new_mem new_r ast
+																										eval_stat env new_mem new_r ast
 	|ASTcall(p,args) -> let eval_p = eval_expr env mem p
 											and args_list = eval_args env mem args in
 												(match eval_p with
 													|InP(block,params,env1) ->
 														 let closure_env = (List.map2 (fun x y -> (x,y)) params args_list)@env1 in
-															eval_block closure_env mem s block
+															eval_block closure_env mem r block
 													|InPR(p,InP(block,params,env1)) ->
 														 let closure_env = (p,List.assoc p env)::(List.map2 (fun x y -> (x,y)) params args_list)@env1 in
-															eval_block closure_env mem s block
+															eval_block closure_env mem r block
 													|_ -> failwith "erreur : impossible d'appliquer une valeur entière")
 	(* APS1 *)
 	| _ -> failwith "[eval_stat] Fail"
@@ -179,9 +177,10 @@ and eval_stat env mem r ast =
 and eval_cmds env mem r ast =
 	match ast with
 	ASTstat(x) -> eval_stat env mem r x
-	(*)| ASTdeccmd(x,cms) -> let (new_env, new_mem) = eval_dec env mem x in
+	| ASTdeccmd(x,cms) -> let (new_env, new_mem) = eval_dec env mem x in
 														eval_cmds new_env new_mem r cms
-	| ASTstatcmd(x,cms) -> let (new_mem,new_r) = eval_stat env mem r x in eval_cmds env new_mem new_r cms*)
+	| ASTstatcmd(x,cms) -> let (new_mem,new_r) = eval_stat env mem r x in
+														eval_cmds env new_mem new_r cms
 	| _ ->  failwith "[eval_cmds] fail"
 
 

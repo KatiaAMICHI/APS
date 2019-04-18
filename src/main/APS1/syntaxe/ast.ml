@@ -1,5 +1,6 @@
 
-type op = Add | Mul | Sub | Div | Eq | Lt | And | Or | Not
+type op = Add | Mul | Sub | Div | Eq | Lt | And | Or
+type op_una = Not
 
 let string_of_op op =
 	match op with
@@ -11,7 +12,7 @@ let string_of_op op =
 		| Lt -> "lt"
 		| And -> "and"
 		| Or -> "or"
-		| Not -> "not"
+
 let op_of_string op =
 	match op with
 		  "add" -> Add
@@ -22,8 +23,15 @@ let op_of_string op =
 		| "lt" -> Lt
 		| "and" -> And
 		| "or" -> Or
-		| "not" -> Not
 		| _ -> failwith "unknown op"
+
+let string_of_op_una op_una =
+	match op_una with
+		| Not -> "not"
+let op_una_of_string op_una =
+	match op_una with
+		| "not" -> Not
+		| _ -> failwith "unknown op_una"
 
 type typ =
 	 Int
@@ -50,7 +58,7 @@ type expr =
 	| ASTnum of int
 	| ASTident of string
 	| ASTprim of op * expr * expr
-	| ASTunaryPrim of op * expr
+	| ASTunaryPrim of op_una * expr
 	| ASTif of expr * expr * expr
 	| ASTlambda of args * expr
 	| ASTapply of expr * exprs
@@ -75,7 +83,7 @@ and stat =
 	| ASTset of string * expr
 	| ASTifblock of expr * block * block
 	| ASTwhile of expr * block
-	| ASTcall of string * exprs
+	| ASTcall of expr * exprs
 	(* APS1 *)
 
 and cmds =
