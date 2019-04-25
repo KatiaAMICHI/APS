@@ -18,36 +18,26 @@ let alloc mem =
 		cpt:=(!cpt+1);
 		res
 
-let get_int v =
-	match v with
-	| InN(e) -> e
-	| _ -> failwith "pas encore fait aussi"
-
 let get_string v =
 	match v with
 	| InN(e) -> string_of_int e
-	|_ -> failwith "Pas fait"
+	|_ -> failwith "[get_string] fail"
 (*aps1*)
-
-let get_value v =
-	match v with
-	InN(x) -> string_of_int x
-	| _ -> failwith "[getvalue] fail"
 
 let int_of_bool x =
 	match x with
 	| true -> 1
 	| false -> 0
 
-let rec ident_exprs exprs =
-	match exprs with
-	| Expr (e) -> e::[]
-	| ASTexprs (e,l)-> e::(ident_exprs l)
-
 let bool_of_int x =
 	match x with
 	|InN(0) -> false
 	|_ -> true
+
+let get_int v =
+	match v with
+	| InN(e) -> e
+	| _ -> failwith "pas encore fait aussi"
 
 let rec parse_arg arg=
 	match arg with
@@ -69,7 +59,7 @@ and eval_oprim_bin env mem op e1 e2 =
 		| (InN b1, InN b2) -> InN(b1 * b2)
 		| _ -> failwith "it not And op")
 	| Or -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN b1, InN b2) -> InN(b1 * b2)
+		| (InN b1, InN b2) -> InN(if b1 = 1 then 1 else b2)
 		| _ -> failwith "it not And op")
 	| Eq -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
 		| (InN n1, InN n2) -> InN (int_of_bool(n1 == n2))
@@ -84,20 +74,18 @@ and eval_oprim_bin env mem op e1 e2 =
 		| (InN n1, InN n2) -> InN (n1 * n2)
 		| _ -> failwith "it not Mul op")
 	| Sub -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN n1, InN n2) -> InN (n1 - n2)
+		| (InN n1, InN n2) -> print_newline(); InN (n1 - n2)
 		| _ -> failwith "it not Sub op")
 	| Div -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
 		| (InN n1, InN n2) -> InN (n1 / n2)
 		| _ -> failwith "it not Div op")
-	| _ -> failwith "None op"
 
 and eval_oprim_una env mem op e =
 	match op with
 	Not -> (
-		match (eval_expr mem env e) with
+		match (eval_expr env mem e) with
 		InN(b1) ->  InN(1 - b1)
 		| _ -> failwith "it not Not op_una")
-	| _ -> failwith "None op unary"
 
 and eval_expr env mem ast =
 	match ast with
@@ -108,7 +96,7 @@ and eval_expr env mem ast =
 									  |InA(a) -> !(List.assoc a mem)
 									  |v -> v)
 	| ASTprim(op,e1,e2) -> (eval_oprim_bin env mem op e1 e2)
-	| ASTunaryPrim(op,e) -> get_string (eval_oprim_una env mem op e)
+	| ASTunaryPrim(op,e) -> (eval_oprim_una env mem op e)
 	| ASTif(cond,th,el) -> (if(bool_of_int (eval_expr env mem cond))
 													then eval_expr env mem th
 													else eval_expr env mem el)
@@ -116,12 +104,13 @@ and eval_expr env mem ast =
 	| ASTapply(expr,args) -> let args_list = eval_args env mem args in
 		(match eval_expr env mem expr with
 		InF(body,params, envf) ->
-						let env_bis = ((List.map2 (fun x y -> (x,y)) params args_list)@envf) in
+			let ebis = ((List.map2 (fun x y -> (x,y)) params args_list)@envf) in (print_string "return fun : ";print_int (get_int (eval_expr ebis	mem body)); print_newline());
+			let env_bis = ((List.map2 (fun x y -> (x,y)) params args_list)@envf) in
 						eval_expr env_bis	mem body
 		| InFR(f, InF(body,params, envf)) ->
 							let env_bis = ((f,List.assoc f env)::(List.map2 (fun x y -> (x,y)) params args_list)@envf) in
 							eval_expr env_bis	mem body
-		| _ -> failwith "ASTapply fail")
+		| _ -> failwith "[eval_expr] ASTapply fail")
 
 and print n =
 	match n with
@@ -138,9 +127,9 @@ and eval_dec env mem ast =
 	(* APS1 *)
 	| ASTvar(id, t) -> let (a,new_mem) = alloc(mem) in ((id,InA(a))::env,new_mem)
 	| ASTproc(id,args,bk) -> ((id,InP(bk,parse_args args,env))::env,mem)
-	| ASTprocrec(id,args,bk) -> ((id,InPR(id,InP(bk,parse_args args,env)))::env,mem)
+	| ASTprocrec(id,args,b) -> ((id,InPR(id,InP(b,parse_args args,env)))::env,mem)
+
 	(* APS1 *)
-	| _ -> failwith "[eval_dec] fail"
 
 (* r : return *)
 and eval_stat env mem r ast =
@@ -148,30 +137,33 @@ and eval_stat env mem r ast =
 	ASTecho(x) -> let res = eval_expr env mem x in r:=!r^(get_string res)^"\n";(mem,r)
 
 	(* APS1 *)
-	| ASTset(id,e) ->(match List.assoc id env with
-											InA(a)-> let affect = eval_expr env mem e in
-															 	 (List.assoc a mem):= affect;
-																 (mem,r)
-											|_ -> failwith "[SET] Error : not a InA")
-	| ASTifblock(e, bk1, bk2) -> if (eval_expr env mem e) = InN(1)
+	|ASTset(id,e) ->(match List.assoc id env with
+									InA(a)-> let v = (List.assoc a mem)
+													 and affect = eval_expr env mem e in
+														 v:= affect;
+														 (mem,r)
+									|_ -> failwith "Error SET : not a InA")
+	| ASTifblock(e, bk1, bk2) -> (print_string "eval_ifblock \n";print_int (get_int (eval_expr env mem e)); print_newline()	;
+																if (eval_expr env mem e) = InN(1)
 																then (eval_block env mem r bk1)
-																else (eval_block env mem r bk2)
+																else (eval_block env mem r bk2))
 	| ASTwhile (e,bk) ->	if (eval_expr env mem e) = InN(0)
 												then (mem,r)
 												else let (new_mem,new_r) = (eval_block env mem r bk) in
 																										eval_stat env new_mem new_r ast
 	|ASTcall(p,args) -> let eval_p = eval_expr env mem p
-											and args_list = eval_args env mem args in
-												(match eval_p with
-													|InP(block,params,env1) ->
-														 let closure_env = (List.map2 (fun x y -> (x,y)) params args_list)@env1 in
-															eval_block closure_env mem r block
-													|InPR(p,InP(block,params,env1)) ->
-														 let closure_env = (p,List.assoc p env)::(List.map2 (fun x y -> (x,y)) params args_list)@env1 in
-															eval_block closure_env mem r block
-													|_ -> failwith "erreur : impossible d'appliquer une valeur entière")
+										and args_list = eval_args env mem args in
+											(match eval_p with
+												|InP(block,params,env1) ->
+													 let closure_env = (List.map2 (fun x y -> (x,y)) params args_list)@env1 in
+														eval_block closure_env mem r block
+												|InPR(p,InP(block,params,env1)) ->
+													(print_string "eval_call_rec \n";
+													 let closure_env = (p,List.assoc p env)::(List.map2 (fun x y -> (x,y)) params args_list)@env1 in
+												 		eval_block closure_env mem r block)
+												|_ -> failwith "erreur : impossible d'appliquer une valeur entière")
+
 	(* APS1 *)
-	| _ -> failwith "[eval_stat] Fail"
 
 
 and eval_cmds env mem r ast =
@@ -181,14 +173,12 @@ and eval_cmds env mem r ast =
 														eval_cmds new_env new_mem r cms
 	| ASTstatcmd(x,cms) -> let (new_mem,new_r) = eval_stat env mem r x in
 														eval_cmds env new_mem new_r cms
-	| _ ->  failwith "[eval_cmds] fail"
 
 
 (* APS1 *)
 and eval_block env mem r ast =
 	match ast with
-	| ASTblock(cmds) -> eval_cmds env mem r cmds
-	| _ ->  failwith "[eval_block] fail"
+	| ASTblock(cmds) -> (print_string "eval_block \n"; eval_cmds env mem r cmds)
 (* APS1 *)
 
 let eval_prog ast =
@@ -197,7 +187,6 @@ let eval_prog ast =
 					  			  and env = []
 										and mem = [] in
 					  				let (memory,sortie) = eval_cmds env mem sortie cmds in !sortie
-	| _ -> failwith "[eval_prog] Fail"
 
 
 let eval_ansyn prog =
