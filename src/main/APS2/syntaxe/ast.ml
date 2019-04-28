@@ -66,9 +66,9 @@ type expr =
 	| ASTlambda of args * expr
 	| ASTapply of expr * exprs
 	(* APS2 *)
-	| ASTenth of expr * expr
 	| ASTlen of expr
 	| ASTalloc of expr
+	| ASTenth of expr * expr
 	(* APS2 *)
 
 and exprs =
