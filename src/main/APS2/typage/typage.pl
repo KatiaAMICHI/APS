@@ -26,9 +26,11 @@ typeStat(C,echo(X),void) :- typeExpr(C,X,int).
 /************APS1***********/
 
 /*(SET)*/
-typeStat(C,set(X, E),void) :-
-	assoc(X,C,T),
+/* APS2 new SET */
+typeStat(C,set(LV, E),void) :-
+	typeExpr(C,LV,T),
 	typeExpr(C,E,T).
+/* APS2 */
 
 /*(IFBLOCK)*/
 typeStat(C,ifblock(COND,B1,B2),void) :-
@@ -42,37 +44,37 @@ typeStat(C,while(E,BK),void) :-
 	typeBlock(C,BK,void).
 
 /*(CALL)*/
-typeStat(C,call(I,ES),void) :-
-	assoc(P,C,arrow(ARGSTYPE,void)),
-	check_types(C,ARGS,ARGSTYPE).
+typeStat(C,call(_,_),void) :-
+	assoc(_,C,arrow(ARGSTYPE,void)),
+	check_types(C,_,ARGSTYPE).
 
-/*************APS1***********/
-
+/*APS1*/
 
 /*(CONST)*/
-typeDec(C,const(X,TYPE,EXPR),[(X,TYPE)|C]) :- typeExpr(C,EXPR,TYPE).
+typeDec(C,const(X,TYPE,EXPR),[(X,TYPE)|C]) :-
+	typeExpr(C,EXPR,TYPE).
 
-/************APS1***********/
+/*APS1*/
 
 /*(VAR)*/
-typeDec(C,var(X,T),CN) :- CN=[(X,TYPE)|C].
+typeDec(C,var(X,_),CN) :-
+	CN=[(X,_)|C].
 
 /*(PROC)*/
-typeDec(C,proc(X,ARGS,BODY),CN) :-
+typeDec(C,proc(_,ARGS,BODY),CN) :-
 	append(ARGS,C,CAR),
 	typeBlock(CAR,BODY,void),
 	get_types_args(ARGS,RES),
-	CN=[(ID,arrow(RES,void))|C].
+	CN=[(_,arrow(RES,void))|C].
 
 /*(PROC REC)*/
-typeDec(C,procrec(X,ARGS,BODY),CN):-
+typeDec(C,procrec(X,ARGS,BODY),_):-
 	get_types_args(ARGS,RES),
 	append(ARGS,C,CARGS),
 	CT = [(X,arrow(RES,void))|CARGS],
-	typeBlock(CT,BODY,void),
-	CBIS=[(X,arrow(RES,void))|C].
+	typeBlock(CT,BODY,void).
 
-/************APS1***********/
+/*APS1*/
 
 /*(FUN)*/
 typeDec(C,fun(ID,TYPE,ARGS,BODY),[(ID,arrow(TYPESIN,TYPE))|C]):-
@@ -127,6 +129,25 @@ typeExpr(C,lambda(ARGS,BODY),arrow(TYPEARGS,TYPEF)) :-
 	get_types_args(ARGS,TYPEARGS),
 	append(C,ARGS,CBIS),
 	typeExpr(CBIS,BODY,TYPEF).
+
+
+/* APS2 */
+
+/* ALLOC */
+typeExpr(C,alloc(E),vec(_)) :-
+	typeExpr(C,E,int).
+
+/* NTH */
+typeExpr(C,nth(E1,E2),T) :-
+	typeExpr(C,E1,vec(T)),
+	typeExpr(C,E2,int).
+
+/* LEN */
+typeExpr(C,len(E),int) :-
+	typeExpr(C,E,vec(_)).
+
+/* APS2 */
+
 
 /*Opérations mathématiques*/
 typeExpr(C,add(X,Y),int) :- typeExpr(C,X,int),
