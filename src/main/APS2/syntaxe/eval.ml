@@ -96,12 +96,11 @@ and eval_oprim_bin env mem op e1 e2 =
 
 and eval_oprim_una env mem op e =
 	match op with
-	Not -> (
-		match (eval_expr env mem e) with
-		(InN n1,_) -> match n1 with
-		| 0 -> InN(1)
-		| 1 -> InN(0)
-		| _ -> failwith "it not Not op_una")
+	Not -> let v, o =  eval_expr env mem e in
+		(match v with
+				| InN(0) -> InN(1)
+				| InN(1) -> InN(0)
+				| _ -> failwith "it not Not op_una")
 
 and eval_expr env mem ast =
 	match ast with
@@ -109,39 +108,39 @@ and eval_expr env mem ast =
 	| ASTfalse -> (InN(0), mem) (*aps2*)
 	| ASTnum(n) -> (InN(n), mem) (*aps2*)
 	| ASTident(x) -> (match (List.assoc x env) with
-									  | InA(a) -> (!(List.assoc a mem), mem)
-										| InB(a,n) -> (InB(a,n), mem)
-									  | v -> (v,mem))
+	  | InA(a) -> (!(List.assoc a mem), mem)
+		| InB(a,n) -> (InB(a,n), mem)
+  	| v -> (v,mem))
 	| ASTprim(op,e1,e2) -> ((eval_oprim_bin env mem op e1 e2), mem) (*aps2*)
 	| ASTunaryPrim(op,e) -> ((eval_oprim_una env mem op e), mem) (*aps2*)
 	| ASTif(e,e1,e2) -> let (v, o) = eval_expr env mem e in (*aps2*)
-													if v = InN(1)
-													then (eval_expr env o e1)
-													else (eval_expr env o e2)
+		if v = InN(1)
+		then (eval_expr env o e1)
+		else (eval_expr env o e2)
 	| ASTlambda(args,expr) -> (InF(expr, (parse_args args), env), mem) (*aps2*)
 	| ASTapply(expr,args) -> let (fer, o) = eval_expr env mem expr in (*aps2*)
-													 let args_o_list = eval_args env mem args in
-													 let (v_list, o_list) =  List.split args_o_list in
-													 let o_end = List.nth o_list ((List.length o_list)-1) in
-		(match fer with
-		InF(body,params, envf) ->	let env_bis = ((List.map2 (fun x y -> (x,y)) params v_list)@envf) in
-																eval_expr env_bis	o_end body
-		| InFR(f, InF(body,params, envf)) -> let env_bis = ((f,List.assoc f env)::(List.map2 (fun x y -> (x,y)) params v_list)@envf) in
-																					eval_expr env_bis	o_end body
-		| _ -> failwith "[eval_expr] ASTapply fail")
+		let args_o_list = eval_args env mem args in
+		let (v_list, o_list) =  List.split args_o_list in
+ 		let o_end = List.nth o_list ((List.length o_list)-1) in
+			(match fer with
+			InF(body,params, envf) ->	let env_bis = ((List.map2 (fun x y -> (x,y)) params v_list)@envf) in
+																	eval_expr env_bis	o_end body
+			| InFR(f, InF(body,params, envf)) -> let env_bis = ((f,List.assoc f env)::(List.map2 (fun x y -> (x,y)) params v_list)@envf) in
+																						eval_expr env_bis	o_end body
+			| _ -> failwith "[eval_expr] ASTapply fail")
 	(* aps2 *)
 	| ASTlen(e) -> let (inb, o) = eval_expr env mem e in
-									(match inb with
-									| InB(a,n)-> (InN(n), o)
-									| _ -> failwith "[ASTlen] fail - not a InB")
+		(match inb with
+		| InB(a,n)-> (InN(n), o)
+		| _ -> failwith "[ASTlen] fail - not a InB")
 	| ASTalloc(e) -> let (n,o) = eval_expr env mem e in
-										let (a, oo) = (allocn o (get_int n)) in
-											(InB(InA(a), (get_int n)), oo)
+		let (a, oo) = (allocn o (get_int n)) in
+			(InB(InA(a), (get_int n)), oo)
 	| ASTenth(e1, e2) -> let (inb, o) = eval_expr env mem e1 in
-												let (inn, oo) = eval_expr env mem e2 in
-														(match inb with
-														| InB(a,n) -> (!(List.assoc ((get_int a + (get_int inn))) oo), oo)
-														| _ -> failwith "[ASTenth] fail - not a InB")
+		let (inn, oo) = eval_expr env mem e2 in
+				(match inb with
+				| InB(a,n) -> (!(List.assoc ((get_int a + (get_int inn))) oo), oo)
+				| _ -> failwith "[ASTenth] fail - not a InB")
 	(* aps2 *)
 
 
