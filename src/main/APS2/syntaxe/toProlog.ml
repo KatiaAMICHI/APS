@@ -53,7 +53,7 @@ and print_expr e =
 match e with
 	ASTtrue -> Printf.printf"true"
 	| ASTfalse -> Printf.printf"false"
-	| ASTnum n -> Printf.printf"int(%d)" n
+	| ASTnum n -> Printf.printf"num(%d)" n
 	| ASTident x -> Printf.printf"ident(%s)" x
 	| ASTprim(op, e1, e2) -> (
 		Printf.printf"%s" (string_of_op op);
@@ -93,14 +93,14 @@ match e with
 		Printf.printf")"
 		)
 	(* APS2 *)
-	| ASTlen(expr) -> (
+	| ASTlen(e) -> (
 		Printf.printf "len(";
-		print_expr expr;
+		print_expr e;
 		Printf.printf ")"
 		)
-	| ASTalloc(expr) -> (
+	| ASTalloc(e) -> (
 		Printf.printf "alloc(";
-		print_expr expr;
+		print_expr e;
 		Printf.printf ")"
 		)
 	| ASTenth(e1,e2)->  (
@@ -140,7 +140,7 @@ match block with
 and print_lval lval =
  	match lval with
  	ASTlid(id) -> print_expr id
- 	|ASTlnth(lval,e)->  (
+ 	| ASTlnth(lval,e)->  (
 		Printf.printf "nth(";
 		print_lval lval;
 		Printf.printf ",";

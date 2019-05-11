@@ -29,29 +29,31 @@ let get_string v =
 
 (*aps2*)
 let allocn mem n =
-	let capture_cpt = !cpt in
-		let rec allocn_b memory nb =
-			if nb>0 then(let new_mem = (!cpt,ref (InN(-1)))::memory in
+	let a = !cpt in
+		let rec allocn_b o nb =
+			if nb>0 then(let new_mem = (!cpt,ref (InN(-1)))::o in
 										(cpt:= !cpt+1;
 											allocn_b new_mem (nb-1)))
-			else((capture_cpt,memory))
+			else((a,o))
 			in (allocn_b mem n)
+
 (*aps2*)
 
 let int_of_bool x =
 	match x with
-	| true -> 1
-	| false -> 0
+		true -> 1
+		| false -> 0
 
 let bool_of_int x =
 	match x with
-	|InN(0) -> false
-	|_ -> true
+		InN(0) -> false
+		|_ -> true
 
 let get_int v =
 	match v with
-	| InN(e) -> e
-	| _ -> failwith "pas encore fait aussi"
+		InN(e) -> e
+		| InA(a) -> a
+		| _ -> failwith "[get_int] fail"
 
 let rec parse_arg arg=
 	match arg with
@@ -62,7 +64,7 @@ and parse_args args =
 	Arg(arg) -> parse_arg arg
 	| ASTargs(arg, args) -> (parse_arg arg)@(parse_args args)
 
-let rec eval_args env mem args =
+and eval_args env mem args =
 	match args with
 		|Expr(a) ->  (eval_expr env mem a)::[]
 		|ASTexprs(a,abis) -> (eval_expr env mem a)::(eval_args env mem abis)
@@ -129,15 +131,15 @@ and eval_expr env mem ast =
 																						eval_expr env_bis	o_end body
 			| _ -> failwith "[eval_expr] ASTapply fail")
 	(* aps2 *)
-	| ASTlen(e) -> let (inb, o) = eval_expr env mem e in
+	| ASTlen(e) -> let inb, o= eval_expr env mem e in
 		(match inb with
 		| InB(a,n)-> (InN(n), o)
 		| _ -> failwith "[ASTlen] fail - not a InB")
-	| ASTalloc(e) -> let (n,o) = eval_expr env mem e in
+	| ASTalloc(e) -> let n,o = eval_expr env mem e in
 		let (a, oo) = (allocn o (get_int n)) in
 			(InB(InA(a), (get_int n)), oo)
 	| ASTenth(e1, e2) -> let (inb, o) = eval_expr env mem e1 in
-		let (inn, oo) = eval_expr env mem e2 in
+		let inn, oo = eval_expr env mem e2 in
 				(match inb with
 				| InB(a,n) -> (!(List.assoc ((get_int a + (get_int inn))) oo), oo)
 				| _ -> failwith "[ASTenth] fail - not a InB")
@@ -152,7 +154,7 @@ and print n =
 and eval_dec env mem ast =
 	match ast with
 	(* ajouter la const dans notre env <=> [prend] (env [et] exp) [produit] v)*)
-	|ASTconst(id,t,e) -> let v,o = eval_expr env mem e in ((id,v)::env,mem)
+	|ASTconst(id,t,e) -> (print_string "const \n";let v,o = eval_expr env mem e in ((id,v)::env,mem))
 	|ASTfun(id,t,args,e) -> ((id,InF(e,parse_args args,env))::env,mem)
 	|ASTrfun(id,t,args,e) -> let params = parse_args args in
 								 ((id,InFR(id,InF(e,params,env)))::env,mem)
@@ -160,20 +162,20 @@ and eval_dec env mem ast =
 	| ASTvar(id, t) -> let (a,new_mem) = alloc(mem) in ((id,InA(a))::env,new_mem)
 	| ASTproc(id,args,bk) -> ((id,InP(bk,parse_args args,env))::env,mem)
 	| ASTprocrec(id,args,b) -> ((id,InPR(id,InP(b,parse_args args,env)))::env,mem)
-
 	(* APS1 *)
 
 (* r : return *)
 and eval_stat env mem r ast =
 	match ast with
-	ASTecho(x) -> let (res,o) = eval_expr env mem x in r:=!r^(get_string res)^"\n";(o,r)
+	ASTecho(x) -> (print_string "astEcho \n";let (res,o) = eval_expr env mem x in r:=!r^(get_string res)^"\n";(o,r))
 
 	(* APS1 *)
-	|ASTset(id,e) -> let v, o = eval_expr env mem e in
+	|ASTset(id,e) -> (print_string "ASTset \n";
+													let v, o = eval_expr env mem e in
 													let a, oo =  eval_lval env o id  in
 													let value = List.assoc a oo in
 														value:=v;
-														(oo,r)
+														(oo,r))
 	| ASTifblock(e, bk1, bk2) -> let eval_e, o =  eval_expr env mem e in
 																if eval_e = InN(1)
 																then (eval_block env mem r bk1)
@@ -197,13 +199,14 @@ and eval_stat env mem r ast =
 	(* APS1 *)
 
 (* APS2 *)
-and eval_lval env mem lv=
+and eval_lval env mem lv =
 	match lv  with
 	ASTlid(a) -> let inb,new_mem = eval_expr env mem a in
 						(match inb with
-						InA(a) -> (a,new_mem)
-						| InB(a,n) -> ((get_int a),new_mem)
-						| _ -> failwith "[ASTlid] fail")
+							InA(a) -> (a,new_mem)
+							| InB(a,n) -> ((get_int a),new_mem)
+							| InN(v) -> (v, new_mem)
+							| _ -> failwith "[ASTlid] fail")
 	| ASTlnth(lval, e) -> let a,o = eval_lval env mem lval in
 													let i,oo = eval_expr env o e in
 														(a+(get_int i),oo)

@@ -79,7 +79,7 @@ dec :
 
 /*aps2*/
 lval:
-	expr { ASTlid($1)}
+	IDENT { ASTlid(ASTident($1)) }
 	| LPAR NTH lval expr RPAR { ASTlnth($3,$4) };
 /*aps2*/
 
