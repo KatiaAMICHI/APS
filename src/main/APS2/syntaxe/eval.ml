@@ -179,26 +179,26 @@ and eval_stat env mem r ast =
 																if eval_e = InN(1)
 																then (eval_block env mem r bk1)
 																else (eval_block env mem r bk2)
-	| ASTwhile (e,bk) ->	if (eval_expr env mem e) = InN(0)
-												then (mem,r)
-												else let (new_mem,new_r) = (eval_block env mem r bk) in
-																										eval_stat env new_mem new_r ast
-	|ASTcall(p,args) -> let eval_p = eval_expr env mem p
-										and args_list = eval_args env mem args in
+	| ASTwhile (e,bk) ->	let eval_e, o = eval_expr env mem e in
+												if eval_e = InN(0)
+												then (o,r)
+												else let oo,new_r = (eval_block env mem r bk) in
+																										eval_stat env oo new_r ast
+	| ASTcall(p,args) -> let eval_p,o = eval_expr env mem p in let args_list = eval_args env o args in
+												let v_list,o_list = List.split args_list in
+													let oo = List.nth o_list ((List.length o_list)-1) in
 											(match eval_p with
-												|InP(block,params,env1) ->
-													 let closure_env = (List.map2 (fun x y -> (x,y)) params args_list)@env1 in
-														eval_block closure_env mem r block
-												|InPR(p,InP(block,params,env1)) ->
-													(print_string "eval_call_rec \n";
-													 let closure_env = (p,List.assoc p env)::(List.map2 (fun x y -> (x,y)) params args_list)@env1 in
-												 		eval_block closure_env mem r block)
-												|_ -> failwith "erreur : impossible d'appliquer une valeur entière")
-
+												| InP(block,params,env1) ->
+													 let closure_env = (List.map2 (fun x y -> (x,y)) params v_list)@env1 in
+														eval_block closure_env oo r block
+												| InPR(p,InP(block,params,env1)) ->
+													 let closure_env = (p,List.assoc p env)::(List.map2 (fun x y -> (x,y)) params v_list)@env1 in
+												 		eval_block closure_env oo r block
+												| _ -> failwith "[ASTcall] fail")
 	(* APS1 *)
 
 (* APS2 *)
-and eval_lval lv env memoire =
+and eval_lval env mem lv=
 	match lv  with
 	ASTlid(a) -> let inb,new_mem = eval_expr env mem a in
 						(match inb with
