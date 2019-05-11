@@ -1,20 +1,17 @@
+src/main/APS0/syntaxe/*.cmi
+src/main/APS0/syntaxe/*.cmo
+src/main/APS0/syntaxe/*.mli
+src/main/APS0/syntaxe/parser.ml
+src/main/APS0/syntaxe/lexer.ml
+
 src/main/APS1/syntaxe/*.cmi
 src/main/APS1/syntaxe/*.cmo
 src/main/APS1/syntaxe/*.mli
 src/main/APS1/syntaxe/lexer.ml
 src/main/APS1/syntaxe/parser.ml
-src/main/APS1/syntaxe/toProlog
 
 src/main/APS2/syntaxe/*.cmi
 src/main/APS2/syntaxe/*.cmo
 src/main/APS2/syntaxe/*.mli
 src/main/APS2/syntaxe/lexer.ml
 src/main/APS2/syntaxe/parser.ml
-src/main/APS2/syntaxe/toProlog
-
-src/main/APS3/syntaxe/*.cmi
-src/main/APS3/syntaxe/*.cmo
-src/main/APS3/syntaxe/*.mli
-src/main/APS3/syntaxe/parser.ml
-src/main/APS3/syntaxe/lexer.ml
-src/main/APS3/syntaxe/toProlog

@@ -1,7 +1,0 @@
-Ajout de EOL
-Changement de INTV à NUM
-Changement du type Fun en Arrow
-git commit --amend ( changer un commit git)
-
-
-changement de oprim OR & AND dans aps0 et aps1 (car faut !!!)

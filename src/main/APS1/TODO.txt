@@ -1,2 +1,0 @@
-Ajout de EOL
-git commit --amend ( changer un commit git)
