@@ -3,6 +3,6 @@
 for i in `ls ../../../tests/aps1/*.aps`
 do
 	echo $i " -> "
-	./toProlog $i
+	./../syntaxe/toProlog $i
 	echo -e
 done

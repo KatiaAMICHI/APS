@@ -41,10 +41,10 @@ let rec eval_args env args =
 and eval_oprim_bin env op e1 e2 =
 	match op with
 	And -> (match (eval_expr env e1), (eval_expr env e2) with
-		| (InN b1, InN b2) -> InN(b1 * b2)
+		| (InN b1, InN b2) -> InN(if b1 = 0 then 0 else b2)
 		| _ -> failwith "it not And op")
 	| Or -> (match (eval_expr env e1), (eval_expr env e2) with
-		| (InN b1, InN b2) -> InN(b1 * b2)
+		| (InN b1, InN b2) -> InN(if b1 = 1 then 1 else b2)
 		| _ -> failwith "it not And op")
 	| Eq -> (match (eval_expr env e1), (eval_expr env e2) with
 		| (InN n1, InN n2) -> InN (int_of_bool(n1 == n2))
@@ -106,13 +106,10 @@ let eval_dec env de =
 	ASTconst(x,t,expr) -> (x, (eval_expr env expr))::env
 	| ASTfun(x,t,args,expr) -> (x, (InF(expr,(parse_args args), env)))::env(* ajouter la fun dans notre env*)
   | ASTrfun(x,t,args,expr) -> (x, (InFR(x, InF(expr,(parse_args args), env))))::env
-	| _ -> failwith "[eval_dec] fail"
 
 let eval_stat env st r =
 	match st with
 	ASTecho(x) -> let res = eval_expr env x in r:=!r^(get_value res)^"\n"
-	| _ -> failwith "[eval_stat] fail"
-
 
 let rec eval_cmds env cm r =
 	match cm with

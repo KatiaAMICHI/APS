@@ -80,7 +80,7 @@ match e with
 and print_exprs es =
 match es with
 	Expr(e) -> print_expr e
-	| ASTexprs(e,es)-> (print_expr e; Printf.printf" "; print_exprs es)
+	| ASTexprs(e,es)-> (print_expr e; Printf.printf","; print_exprs es)
 
 
 let print_dec dec =

@@ -42,9 +42,9 @@ typeStat(C,while(E,BK),void) :-
 	typeBlock(C,BK,void).
 
 /*(CALL)*/
-typeStat(C,call(I,ES),void) :-
-	assoc(P,C,arrow(ARGSTYPE,void)),
-	check_types(C,ARGS,ARGSTYPE).
+typeStat(C,call(_,_),void) :-
+	assoc(_,C,arrow(ARGSTYPE,void)),
+	check_types(C,_,ARGSTYPE).
 
 /*************APS1***********/
 
@@ -55,22 +55,21 @@ typeDec(C,const(X,TYPE,EXPR),[(X,TYPE)|C]) :- typeExpr(C,EXPR,TYPE).
 /************APS1***********/
 
 /*(VAR)*/
-typeDec(C,var(X,T),CN) :- CN=[(X,TYPE)|C].
+typeDec(C,var(X,_),CN) :- CN=[(X,_)|C].
 
 /*(PROC)*/
-typeDec(C,proc(X,ARGS,BODY),CN) :-
+typeDec(C,proc(_,ARGS,BODY),CN) :-
 	append(ARGS,C,CAR),
 	typeBlock(CAR,BODY,void),
 	get_types_args(ARGS,RES),
-	CN=[(ID,arrow(RES,void))|C].
+	CN=[(_,arrow(RES,void))|C].
 
 /*(PROC REC)*/
-typeDec(C,procrec(X,ARGS,BODY),CN):-
+typeDec(C,procrec(X,ARGS,BODY),_):-
 	get_types_args(ARGS,RES),
 	append(ARGS,C,CARGS),
 	CT = [(X,arrow(RES,void))|CARGS],
-	typeBlock(CT,BODY,void),
-	CBIS=[(X,arrow(RES,void))|C].
+	typeBlock(CT,BODY,void).
 
 /************APS1***********/
 
@@ -118,9 +117,9 @@ typeExpr(C,apply(ident(F),ARGS),TYPE) :-
 	check_types(C,ARGS,ARGSTYPE).
 
 /*(APP lambda)*/
-typeExpr(C,apply(X,VARGS),TYPE) :-
-	typeExpr(C,X,arrow(TYPEARGS,TYPE)).
-	typeExpr(C,VARGS,TYPEARGS).
+typeExpr(_,apply(X,_),TYPE) :-
+	typeExpr(_,X,arrow(_,TYPE)).
+	typeExpr(_,_,_).
 
 /*(ABS)*/
 typeExpr(C,lambda(ARGS,BODY),arrow(TYPEARGS,TYPEF)) :-
