@@ -30,18 +30,12 @@ let get_string v =
 (*aps2*)
 let allocn mem n =
 	let capture_cpt = !cpt in
-		let rec aux memory nb =
-			if nb>0 then
-				begin
-					let new_mem = (!cpt,ref (InN(-1)))::memory in
-						(cpt:= !cpt+1;
-						aux new_mem (nb-1))
-				end
-			else
-				begin
-					(capture_cpt,memory)
-				end
-			in (aux mem n)
+		let rec allocn_b memory nb =
+			if nb>0 then(let new_mem = (!cpt,ref (InN(-1)))::memory in
+										(cpt:= !cpt+1;
+											allocn_b new_mem (nb-1)))
+			else((capture_cpt,memory))
+			in (allocn_b mem n)
 (*aps2*)
 
 let int_of_bool x =
@@ -76,35 +70,37 @@ let rec eval_args env mem args =
 and eval_oprim_bin env mem op e1 e2 =
 	match op with
 	And -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN b1, InN b2) -> InN(b1 * b2)
+		| ((InN n1,_), (InN n2,_)) -> InN(if n1 = 0 then 0 else n2)
 		| _ -> failwith "it not And op")
 	| Or -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN b1, InN b2) -> InN(if b1 = 1 then 1 else b2)
+		| ((InN n1,_), (InN n2,_)) -> InN(if n1 = 1 then 1 else n2)
 		| _ -> failwith "it not And op")
 	| Eq -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN n1, InN n2) -> InN (int_of_bool(n1 == n2))
+		| ((InN n1,_), (InN n2,_)) -> InN (int_of_bool(n1 == n2))
 		| _ -> failwith "it not Eq op")
 	| Lt -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN n1, InN n2) -> InN (int_of_bool(n1 < n2))
+		| ((InN n1,_), (InN n2,_)) -> InN (int_of_bool(n1 < n2))
 		| _ -> failwith "it not Lt op")
 	| Add -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN n1, InN n2) -> InN(n1 + n2)
+		| ((InN n1,_), (InN n2,_)) -> InN(n1 + n2)
 		| _ -> failwith "it not Add op")
 	| Mul -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN n1, InN n2) -> InN (n1 * n2)
+		| ((InN n1,_), (InN n2,_)) -> InN (n1 * n2)
 		| _ -> failwith "it not Mul op")
 	| Sub -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN n1, InN n2) -> print_newline(); InN (n1 - n2)
+		| ((InN n1,_), (InN n2,_)) -> print_newline(); InN (n1 - n2)
 		| _ -> failwith "it not Sub op")
 	| Div -> (match (eval_expr env mem e1), (eval_expr env mem e2) with
-		| (InN n1, InN n2) -> InN (n1 / n2)
+		| ((InN n1,_), (InN n2,_)) -> InN (n1 / n2)
 		| _ -> failwith "it not Div op")
 
 and eval_oprim_una env mem op e =
 	match op with
 	Not -> (
 		match (eval_expr env mem e) with
-		InN(b1) ->  InN(1 - b1)
+		(InN n1,_) -> match n1 with
+		| 0 -> InN(1)
+		| 1 -> InN(0)
 		| _ -> failwith "it not Not op_una")
 
 and eval_expr env mem ast =
@@ -113,8 +109,9 @@ and eval_expr env mem ast =
 	| ASTfalse -> (InN(0), mem) (*aps2*)
 	| ASTnum(n) -> (InN(n), mem) (*aps2*)
 	| ASTident(x) -> (match (List.assoc x env) with
-									  |InA(a) -> !(List.assoc a mem)
-									  |v -> v)
+									  | InA(a) -> (!(List.assoc a mem), mem)
+										| InB(a,n) -> (InB(a,n), mem)
+									  | v -> (v,mem))
 	| ASTprim(op,e1,e2) -> ((eval_oprim_bin env mem op e1 e2), mem) (*aps2*)
 	| ASTunaryPrim(op,e) -> ((eval_oprim_una env mem op e), mem) (*aps2*)
 	| ASTif(e,e1,e2) -> let (v, o) = eval_expr env mem e in (*aps2*)
@@ -124,7 +121,7 @@ and eval_expr env mem ast =
 	| ASTlambda(args,expr) -> (InF(expr, (parse_args args), env), mem) (*aps2*)
 	| ASTapply(expr,args) -> let (fer, o) = eval_expr env mem expr in (*aps2*)
 													 let args_o_list = eval_args env mem args in
-													 let (v_list, o_list) =  List.split args_list in
+													 let (v_list, o_list) =  List.split args_o_list in
 													 let o_end = List.nth o_list ((List.length o_list)-1) in
 		(match fer with
 		InF(body,params, envf) ->	let env_bis = ((List.map2 (fun x y -> (x,y)) params v_list)@envf) in
@@ -136,15 +133,15 @@ and eval_expr env mem ast =
 	| ASTlen(e) -> let (inb, o) = eval_expr env mem e in
 									(match inb with
 									| InB(a,n)-> (InN(n), o)
-									| _ -> "[ASTlen] fail - not a InB")
+									| _ -> failwith "[ASTlen] fail - not a InB")
 	| ASTalloc(e) -> let (n,o) = eval_expr env mem e in
 										let (a, oo) = (allocn o (get_int n)) in
-											(InB(InA(a), (get_int n), oo))
+											(InB(InA(a), (get_int n)), oo)
 	| ASTenth(e1, e2) -> let (inb, o) = eval_expr env mem e1 in
 												let (inn, oo) = eval_expr env mem e2 in
 														(match inb with
-														| InB(a,n) -> ((List.assoc ((get_int a + (get_int inn))) oo), oo)
-														| _ -> "[ASTenth] fail - not a InB")
+														| InB(a,n) -> (!(List.assoc ((get_int a + (get_int inn))) oo), oo)
+														| _ -> failwith "[ASTenth] fail - not a InB")
 	(* aps2 *)
 
 
@@ -156,7 +153,7 @@ and print n =
 and eval_dec env mem ast =
 	match ast with
 	(* ajouter la const dans notre env <=> [prend] (env [et] exp) [produit] v)*)
-	|ASTconst(id,t,e) -> let v = eval_expr env mem e in ((id,v)::env,mem)
+	|ASTconst(id,t,e) -> let v,o = eval_expr env mem e in ((id,v)::env,mem)
 	|ASTfun(id,t,args,e) -> ((id,InF(e,parse_args args,env))::env,mem)
 	|ASTrfun(id,t,args,e) -> let params = parse_args args in
 								 ((id,InFR(id,InF(e,params,env)))::env,mem)
@@ -170,19 +167,18 @@ and eval_dec env mem ast =
 (* r : return *)
 and eval_stat env mem r ast =
 	match ast with
-	ASTecho(x) -> let res = eval_expr env mem x in r:=!r^(get_string res)^"\n";(mem,r)
+	ASTecho(x) -> let (res,o) = eval_expr env mem x in r:=!r^(get_string res)^"\n";(o,r)
 
 	(* APS1 *)
-	|ASTset(id,e) ->(match List.assoc id env with
-									InA(a)-> let v = (List.assoc a mem)
-													 and affect = eval_expr env mem e in
-														 v:= affect;
-														 (mem,r)
-									|_ -> failwith "Error SET : not a InA")
-	| ASTifblock(e, bk1, bk2) -> (print_string "eval_ifblock \n";print_int (get_int (eval_expr env mem e)); print_newline()	;
-																if (eval_expr env mem e) = InN(1)
+	|ASTset(id,e) -> let v, o = eval_expr env mem e in
+													let a, oo =  eval_lval env o id  in
+													let value = List.assoc a oo in
+														value:=v;
+														(oo,r)
+	| ASTifblock(e, bk1, bk2) -> let eval_e, o =  eval_expr env mem e in
+																if eval_e = InN(1)
 																then (eval_block env mem r bk1)
-																else (eval_block env mem r bk2))
+																else (eval_block env mem r bk2)
 	| ASTwhile (e,bk) ->	if (eval_expr env mem e) = InN(0)
 												then (mem,r)
 												else let (new_mem,new_r) = (eval_block env mem r bk) in
@@ -201,7 +197,19 @@ and eval_stat env mem r ast =
 
 	(* APS1 *)
 
+(* APS2 *)
+and eval_lval lv env memoire =
+	match lv  with
+	ASTlid(a) -> let inb,new_mem = eval_expr env mem a in
+						(match inb with
+						InA(a) -> (a,new_mem)
+						| InB(a,n) -> ((get_int a),new_mem)
+						| _ -> failwith "[ASTlid] fail")
+	| ASTlnth(lval, e) -> let a,o = eval_lval env mem lval in
+													let i,oo = eval_expr env o e in
+														(a+(get_int i),oo)
 
+(* APS2 *)
 and eval_cmds env mem r ast =
 	match ast with
 	ASTstat(x) -> eval_stat env mem r x
