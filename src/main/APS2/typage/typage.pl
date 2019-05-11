@@ -27,8 +27,8 @@ typeStat(C,echo(X),void) :- typeExpr(C,X,int).
 
 /*(SET)*/
 /* APS2 new SET */
-typeStat(C,set(LV, E),void) :-
-	typeExpr(C,LV,T),
+typeStat(C,set(ident(ID), E),void) :-
+	assoc(ID,C,T),
 	typeExpr(C,E,T).
 /* APS2 */
 
@@ -44,9 +44,16 @@ typeStat(C,while(E,BK),void) :-
 	typeBlock(C,BK,void).
 
 /*(CALL)*/
-typeStat(C,call(_,_),void) :-
-	assoc(_,C,arrow(ARGSTYPE,void)),
-	check_types(C,_,ARGSTYPE).
+typeStat(C,call(ident(P),ARGS),void) :-
+	assoc(P,C,arrow(ARGSTYPE,void)),
+	check_types(C,ARGS,ARGSTYPE).
+
+/**************APS2*************/
+/*(SET)*/
+typeStat(C,set(NTH,EXPR),void) :-
+	typeExpr(C,NTH,TYPE),
+	typeExpr(C,EXPR,TYPE).
+/*******************************/
 
 /*APS1*/
 
@@ -104,7 +111,7 @@ typeExpr(_,true,bool).
 typeExpr(_,false,bool).
 
 /*(INT)*/
-typeExpr(_,int(X),int) :- integer(X).
+typeExpr(_,num(X),int) :- integer(X).
 
 /*(IDENT)*/
 typeExpr(C,ident(X),T) :- assoc(X,C,T).
