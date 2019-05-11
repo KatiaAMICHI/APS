@@ -1,6 +1,6 @@
-src/main/*/syntaxe/*.cmi
-src/main/*/syntaxe/*.cmo
-src/main/*/syntaxe/*.mli
-src/main/*/syntaxe/lexer.ml
-src/main/*/syntaxe/parser.ml
-src/main/*/syntaxe/toProlog
+src/main/APS*/syntaxe/*.cmi
+src/main/APS*/syntaxe/*.cmo
+src/main/APS*/syntaxe/*.mli
+src/main/APS*/syntaxe/lexer.ml
+src/main/APS*/syntaxe/parser.ml
+src/main/APS*/syntaxe/toProlog
