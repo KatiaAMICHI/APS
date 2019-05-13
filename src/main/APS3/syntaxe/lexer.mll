@@ -43,6 +43,9 @@ rule token = parse
   | "alloc" 		   { ALLOC }
   | "vec" 		       { VEC }
   (*aps2*)
+  (*aps3*)
+  | "RETURN" {RETURN}
+  (*aps3*)
   (*Symboles réservés*)
   | ';'	{ PC }
 	| ':'   { COLON }

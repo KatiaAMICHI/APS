@@ -25,6 +25,10 @@ open Ast
 %token LEN NTH ALLOC VEC
 /*APS2*/
 
+/*APS3*/
+%token RETURN
+/*APS3*/
+
 /* Précédences (priorité + associativité) des terminaux */
 %nonassoc EQ NOT LT
 %left COMMA
@@ -48,6 +52,10 @@ open Ast
 %type <Ast.lval> lval
 /*aps2*/
 
+/*aps3*/
+%type <Ast.ret> ret
+/*aps3*/
+
 %%
 
 /* Déclaration de la grammaire avec les actions sémantiques */
@@ -61,6 +69,10 @@ cmds :
 	stat { ASTstat($1) }
 	| dec PC cmds { ASTdeccmd($1,$3) }
 	| stat PC cmds { ASTstatcmd($1,$3) };
+	/* APS3 */
+	| ret { ASTcmdRet($1) };
+	/* APS3 */
+
 
 /* APS1 */
 block :
@@ -72,15 +84,25 @@ dec :
 	| FUN IDENT typ LCRO args RCRO expr {ASTfun($2, $3, $5, $7) }
 	| FUN REC IDENT typ LCRO args RCRO expr {ASTrfun ($3, $4, $6, $8) };
 	/* APS1 */
-	| VAR IDENT typ {ASTvar($2, $3)  }
+	| VAR IDENT typ { ASTvar($2, $3) }
 	| PROC IDENT LCRO args RCRO block { ASTproc($2, $4, $6)}
 	| PROC REC IDENT LCRO args RCRO block { ASTprocrec($3, $5, $7)}
 	/* APS1 */
+	/* APS3 */
+	| FUN IDENT typ LCRO args RCRO block  {ASTfunRet($2,$3,$5,$7)}
+	| FUN REC IDENT typ LCRO args RCRO block  {ASTfunrecRet($3,$4,$6,$8)}
+
+	/* APS3 */
 
 /*aps2*/
 lval:
 	IDENT { ASTlid(ASTident($1)) }
 	| LPAR NTH lval expr RPAR { ASTlnth($3,$4) };
+/*aps2*/
+
+/*aps2*/
+ret:
+|RETURN expr {ASTreturn($2)};
 /*aps2*/
 
 stat :

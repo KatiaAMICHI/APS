@@ -128,26 +128,39 @@ match params with
 
 (*aps1*)
 and print_block block =
-match block with
-	| ASTblock(cmds) ->(
-		Printf.printf"block([";
-		print_cmd cmds;
-		Printf.printf"])"
-		)
+	match block with
+		| ASTblock(cmds) ->(
+			Printf.printf"block([";
+			print_cmd cmds;
+			Printf.printf"])"
+			)
+
+
 (*aps1*)
 
 (* APS2 *)
 and print_lval lval =
  	match lval with
- 	ASTlid(id) -> print_expr id
- 	| ASTlnth(lval,e)->  (
-		Printf.printf "nth(";
-		print_lval lval;
-		Printf.printf ",";
-		print_expr e;
-		Printf.printf ")"
-		)
+	 	ASTlid(id) -> print_expr id
+	 	| ASTlnth(lval,e)->  (
+			Printf.printf "nth(";
+			print_lval lval;
+			Printf.printf ",";
+			print_expr e;
+			Printf.printf ")"
+			)
 (* APS2 *)
+
+(* APS3 *)
+and print_ret ret =
+	match ret with
+		ASTreturn(e) -> (
+			Printf.printf"ret(";
+			print_expr e;
+			Printf.printf")"
+			)
+(* APS3 *)
+
 
 and print_dec dec =
 	match dec with
@@ -199,6 +212,27 @@ and print_dec dec =
 			Printf.printf")"
 			)
 		(* APS1 *)
+		(* APS3 *)
+		| ASTfunRet(s,t,a,b)->(
+			Printf.printf"funRet(%s,"s;
+			print_type t;
+			Printf.printf",[";
+			print_args a;
+			Printf.printf"],";
+			print_block b;
+			Printf.printf")"
+		)
+		| ASTfunrecRet(s,t,a,b)->(
+			Printf.printf"funrecRet(%s,"s;
+			print_type t;
+			Printf.printf",[";
+			print_args a;
+			Printf.printf"],";
+			print_block b;
+			Printf.printf")"
+		)
+		(* APS3 *)
+
 
 and print_stat stat =
 	match stat with
@@ -253,6 +287,10 @@ and print_cmd cmd =
 					print_stat stat;
 					Printf.printf"),";
 					print_cmd cmds)
+
+		(* APS3 *)
+		| ASTcmdRet(ret) -> (print_ret ret)
+		(* APS3 *)
 
 let print_prog prog =
 	match prog with

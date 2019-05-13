@@ -84,6 +84,10 @@ type dec =
 	| ASTproc of string * args * block
 	| ASTprocrec of string * args * block
 	(* APS1 *)
+	(* APS3 *)
+	| ASTfunRet of string * typ * args * block
+	| ASTfunrecRet of string * typ * args * block
+	(* APS3 *)
 
 and stat =
 	ASTecho of expr
@@ -98,6 +102,14 @@ and cmds =
 	ASTstat of stat
 	| ASTdeccmd of dec * cmds
 	| ASTstatcmd of stat * cmds
+	(* APS3 *)
+	| ASTcmdRet of ret
+	(* APS3 *)
+
+(* APS3 *)
+and ret =
+    ASTreturn of expr
+(* APS3 *)
 
 (* APS2 *)
 and lval =
