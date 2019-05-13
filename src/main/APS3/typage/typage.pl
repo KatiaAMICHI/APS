@@ -104,6 +104,29 @@ get_types_args([],[]).
 get_types_args([(_,T)|ARGS],[T|RES]) :-
 	get_types_args(ARGS,RES).
 
+
+/**************APS3*************/
+
+/*Déclaration fonction procédurales */
+typeDec(G,funRet(X,T,A,BK),[(X,typeFunc(TS,T))|G]):-
+	append(G,A,GG),
+	typeBlock(GG,BK,T),
+	getTypes(A,TS).
+
+/*Déclaration de fonction procédurales récursive*/
+typeDec(G,funrecRet(X,T,A,BK),[(X,typeFunc(TS,T))|G]):-
+	append(G,A,G2),
+	append(G2,[(X,typeFunc(TS,T))],GG),
+	typeBlock(GG,BK,T),
+	getTypes(A,TS).
+
+/* RET */
+typeCmds(G,[ret(E),epsilon],T):-
+	typeExpr(G,E,T).
+
+/*******************************/
+
+
 /*(TRUE)*/
 typeExpr(_,true,bool).
 

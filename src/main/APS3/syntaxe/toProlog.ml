@@ -214,8 +214,8 @@ and print_dec dec =
 		(* APS1 *)
 		(* APS3 *)
 		| ASTfunRet(s,t,a,b)->(
-			Printf.printf"funRet(%s,"s;
 			print_type t;
+			Printf.printf"funRet(%s,"s;
 			Printf.printf",[";
 			print_args a;
 			Printf.printf"],";
