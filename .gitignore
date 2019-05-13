@@ -15,3 +15,9 @@ src/main/APS2/syntaxe/*.cmo
 src/main/APS2/syntaxe/*.mli
 src/main/APS2/syntaxe/lexer.ml
 src/main/APS2/syntaxe/parser.ml
+
+src/main/APS3/syntaxe/*.cmi
+src/main/APS3/syntaxe/*.cmo
+src/main/APS3/syntaxe/*.mli
+src/main/APS3/syntaxe/lexer.ml
+src/main/APS3/syntaxe/parser.ml

@@ -1,0 +1,20 @@
+[
+  CONST xs (vec (vec bool)) (alloc 3);
+  SET (nth xs 0) (alloc 2);
+  SET (nth xs 1) (alloc 3);
+  SET (nth xs 2) (alloc 4);
+  SET (nth (nth xs 0) 0) 11;
+  SET (nth (nth xs 0) 1) 12;
+  SET (nth (nth xs 1) 0) 13;
+  SET (nth (nth xs 1) 1) 14;
+  SET (nth (nth xs 1) 2) 15;
+  SET (nth (nth xs 2) 0) 16;
+  SET (nth (nth xs 2) 1) 17;
+  SET (nth (nth xs 2) 2) 18;
+  SET (nth (nth xs 2) 3) 19;
+  ECHO (nth (nth xs 0) 0);
+  ECHO (nth (nth xs 0) 1);
+  ECHO (nth (nth xs 2) 1);
+  ECHO (nth (nth xs 2) 2);
+  ECHO (nth (nth xs 2) 3)
+]
